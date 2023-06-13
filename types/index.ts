@@ -1,1 +1,1 @@
-export type Rating = 'Bad' | 'Poor' | 'Fair' | 'Good' | 'Excellent';
+export type VotingPhase = "Registration" | "Voting" | "Close";

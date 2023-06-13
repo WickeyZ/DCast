@@ -1,10 +1,10 @@
-import Link from 'next/link';
-import { SidebarIcons } from '../svg/SidebarIcons.svg';
-import React, { useContext, useEffect } from 'react';
-import { LogoSvg } from '../svg/Logo.svg';
-import { DTraceContext } from '@/context/Dtrace';
-import { useRouter } from 'next/router';
-import toast from 'react-hot-toast';
+import Link from "next/link";
+import { SidebarIcons } from "../svg/SidebarIcons.svg";
+import React, { useContext, useEffect } from "react";
+import { LogoSvg } from "../svg/Logo.svg";
+import { DTraceContext } from "@/context/Dtrace";
+import { useRouter } from "next/router";
+import toast from "react-hot-toast";
 
 function Tooltip({
   message,
@@ -24,23 +24,23 @@ function Tooltip({
 }
 
 export type roles =
-  | 'guest'
-  | 'farm'
-  | 'distribution center'
-  | 'retailer'
-  | 'consumer'
-  | 'admin';
+  | "guest"
+  | "farm"
+  | "distribution center"
+  | "retailer"
+  | "consumer"
+  | "admin";
 
 export type paths =
-  | '/'
-  | '/add-durian'
-  | '/catalog'
-  | '/stock-in'
-  | '/sell'
-  | '/add-consumer'
-  | '/rate'
-  | '/add-account'
-  | '/view-accounts';
+  | "/"
+  | "/add-durian"
+  | "/catalog"
+  | "/stock-in"
+  | "/sell"
+  | "/add-consumer"
+  | "/rate"
+  | "/add-account"
+  | "/view-accounts";
 
 export const pages: {
   [key in paths]: {
@@ -48,41 +48,41 @@ export const pages: {
     access: roles;
   };
 } = {
-  '/': {
-    title: 'Check Durian',
-    access: 'guest',
+  "/": {
+    title: "Check Voting Session",
+    access: "guest",
   },
-  '/add-durian': {
-    title: 'Add Durian',
-    access: 'farm',
+  "/add-durian": {
+    title: "Add Durian",
+    access: "farm",
   },
-  '/catalog': {
-    title: 'Catalog Durian',
-    access: 'distribution center',
+  "/catalog": {
+    title: "Catalog Durian",
+    access: "distribution center",
   },
-  '/stock-in': {
-    title: 'Stock In Durian',
-    access: 'retailer',
+  "/stock-in": {
+    title: "Stock In Durian",
+    access: "retailer",
   },
-  '/sell': {
-    title: 'Sell Durian',
-    access: 'retailer',
+  "/sell": {
+    title: "Sell Durian",
+    access: "retailer",
   },
-  '/rate': {
-    title: 'Rate Durian',
-    access: 'consumer',
+  "/rate": {
+    title: "Rate Durian",
+    access: "consumer",
   },
-  '/add-account': {
-    title: 'Add Account',
-    access: 'admin',
+  "/add-account": {
+    title: "Add Account",
+    access: "admin",
   },
-  '/add-consumer': {
-    title: 'Add Consumer',
-    access: 'retailer',
+  "/add-consumer": {
+    title: "Add Consumer",
+    access: "retailer",
   },
-  '/view-accounts': {
-    title: 'View Accounts',
-    access: 'admin',
+  "/view-accounts": {
+    title: "View Accounts",
+    access: "admin",
   },
 };
 
@@ -109,7 +109,7 @@ const Layout: React.FC<LayoutProps> = ({
     toast.custom((t) => (
       <div
         className={`${
-          t.visible ? 'animate-enter' : 'animate-leave'
+          t.visible ? "animate-enter" : "animate-leave"
         } max-w-[460px] w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}
       >
         <div className="flex-1 w-0 p-4">
@@ -132,11 +132,11 @@ const Layout: React.FC<LayoutProps> = ({
   };
 
   useEffect(() => {
-    window.ethereum.on('accountsChanged', async () => {
-      console.log('Account changed');
+    window.ethereum.on("accountsChanged", async () => {
+      console.log("Account changed");
 
       checkIfWalletIsConnected();
-      router.push('/');
+      router.push("/");
     });
   }, []);
 
@@ -176,7 +176,7 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
           <ul className="space-y-2 font-medium">
             {Object.entries(pages).map(([path, { title, access }]) => {
-              if (currentRole !== access && path !== '/') return null;
+              if (currentRole !== access && path !== "/") return null;
               return (
                 <li key={path}>
                   <Link
@@ -189,7 +189,7 @@ const Layout: React.FC<LayoutProps> = ({
                     />
                     <span
                       className={`flex-1 ml-3 whitespace-nowrap ${
-                        currentPage === path && 'text-primary'
+                        currentPage === path && "text-primary"
                       }`}
                     >
                       {title}
@@ -200,7 +200,7 @@ const Layout: React.FC<LayoutProps> = ({
             })}
           </ul>
           <div className="mt-auto">
-            {currentRole === 'guest' ? (
+            {currentRole === "guest" ? (
               currentAccount ? (
                 <Tooltip message="Click to view address">
                   <span
@@ -221,7 +221,7 @@ const Layout: React.FC<LayoutProps> = ({
                   onClick={handleViewAddress}
                   className="cursor-pointer bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
                 >
-                  Connected as{' '}
+                  Connected as{" "}
                   {currentRole.replace(/\w\S*/g, function (txt) {
                     return (
                       txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()

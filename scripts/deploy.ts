@@ -1,13 +1,13 @@
 const hre = require("hardhat");
 
 async function main() {
-  const DTrace = await hre.ethers.getContractFactory("DTrace");
+  const DCast = await hre.ethers.getContractFactory("DCast");
   // const gasLimit = 5000000; // Set a higher gas limit value
-  const dtrace = await DTrace.deploy();
+  const dcast = await DCast.deploy();
 
-  await dtrace.deployed();
+  await dcast.deployed();
 
-  console.log("Smart contract is deployed to:", dtrace.address);
+  console.log("Smart contract is deployed to:", dcast.address);
 }
 
 main().catch((error) => {
