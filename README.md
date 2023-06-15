@@ -7,10 +7,12 @@ It's also a [Next.js](https://nextjs.org/) project bootstrapped with [`create-ne
 #=====DEPLOYING=====
 # set up a hardhat backend server node
 npx hardhat node
-# to deploy onto a local node (hardhat)
+# to deploy onto local hardhat
 npx hardhat run scripts/deploy.ts --network localhost
-# to deploy onto a local ganache node
+# to deploy onto local ganache
 npx hardhat run scripts/deploy.ts --network localganache
+# to deploy onto sepolia node
+npx hardhat run scripts/deploy.ts --network sepolia
 
 #=====LEARN MORE=====
 npx hardhat help

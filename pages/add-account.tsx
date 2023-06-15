@@ -1,9 +1,9 @@
-import Layout, { pages, roles } from '@/components/layout/Layout';
-import { DTraceContext } from '@/context/Dtrace';
-import { useContext, useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import Layout, { pages, roles } from "@/components/layout/Layout";
+import { DTraceContext } from "@/context/Dtrace";
+import { useContext, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
-type Roles = 'ADMIN' | 'FARM' | 'DISTRIBUTION_CENTER' | 'RETAILER' | 'CONSUMER';
+type Roles = "ADMIN" | "VOTER";
 
 export default function AddAccountPage() {
   // ---------------------------------------------------------------------//
@@ -12,14 +12,8 @@ export default function AddAccountPage() {
     checkIfWalletIsConnected,
     checkAccountType,
     addAdmin,
-    addFarm,
-    addDistributionCenter,
-    addRetailer,
-    addConsumer,
-    getFarmTotal,
-    getDistributionCenterTotal,
-    getRetailerTotal,
-    getConsumerTotal,
+    addVoter,
+    getVoterTotal,
   } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -27,7 +21,7 @@ export default function AddAccountPage() {
     checkIfWalletIsConnected();
 
     if (currentAccount) {
-      console.log('currentAccount', currentAccount);
+      console.log("currentAccount", currentAccount);
 
       checkAccountType(currentAccount).then((accountType) => {
         setRole(accountType as roles);
@@ -38,22 +32,9 @@ export default function AddAccountPage() {
   }, [currentAccount]);
   // ---------------------------------------------------------------------//
 
-  const [accountAddress, setAccountAddress] = useState('');
-  const [accountType, setAccountType] = useState<Roles>('ADMIN');
-  const [farmName, setFarmName] = useState('');
-  const [farmLocation, setFarmLocation] = useState('');
-  const [distributionCenterName, setDistributionCenterName] = useState('');
-  const [distributionCenterLocation, setDistributionCenterLocation] =
-    useState('');
-  const [retailerName, setRetailerName] = useState('');
-  const [retailerLocation, setRetailerLocation] = useState('');
-  const [consumerName, setConsumerName] = useState('');
-  const [latestFarmId, setLatestFarmId] = useState<number | null>(null);
-  const [latestDistributionCenterId, setLatestDistributionCenterId] = useState<
-    number | null
-  >(null);
-  const [latestRetailerId, setLatestRetailerId] = useState<number | null>(null);
-  const [latestConsumerId, setLatestConsumerId] = useState<number | null>(null);
+  const [accountAddress, setAccountAddress] = useState("");
+  const [accountType, setAccountType] = useState<Roles>("ADMIN");
+  const [latestVoterId, setLatestVoterId] = useState<number | null>(null);
 
   const handleAccountTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setAccountType(e.target.value as Roles);
@@ -62,81 +43,39 @@ export default function AddAccountPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (accountAddress === '') {
-      toast.error('Please enter an account address');
+    if (accountAddress === "") {
+      toast.error("Please enter an account address");
       return;
     } else if (!/^0x[a-fA-F0-9]{40}$/.test(accountAddress)) {
-      toast.error('Please enter a valid account address');
+      toast.error("Please enter a valid account address");
       return;
     } else if (accountAddress.toLowerCase() === currentAccount) {
-      toast.error('You cannot add your own account');
+      toast.error("You cannot add your own account");
       return;
     } else {
       try {
-        if (accountType === 'ADMIN') {
-          if ((await checkAccountType(accountAddress)) === 'OwnerOrAdmin') {
-            toast.error('This account is already an admin');
+        if (accountType === "ADMIN") {
+          if (
+            (await checkAccountType(accountAddress)) === "Admin" ||
+            (await checkAccountType(accountAddress)) === "Owner"
+          ) {
+            toast.error("This account is already an admin");
             return;
           }
           await addAdmin(accountAddress);
-          toast.success('Admin added successfully!');
-        } else if (accountType === 'FARM') {
-          if ((await checkAccountType(accountAddress)) === 'Farm') {
-            toast.error('This account is already a farm');
+          toast.success("Admin added successfully!");
+        } else if (accountType === "VOTER") {
+          if ((await checkAccountType(accountAddress)) === "Voter") {
+            toast.error("This account is already a voter");
             return;
           }
-          await addFarm(accountAddress, farmName, farmLocation);
-          const newFarmId = await getFarmTotal();
-          setLatestFarmId(newFarmId);
-          setLatestDistributionCenterId(null);
-          setLatestRetailerId(null);
-          setLatestConsumerId(null);
-          toast.success('Farm added successfully!');
-        } else if (accountType === 'DISTRIBUTION_CENTER') {
-          if (
-            (await checkAccountType(accountAddress)) === 'Distribution Center'
-          ) {
-            toast.error('This account is already a distribution center');
-            return;
-          }
-          await addDistributionCenter(
-            accountAddress,
-            distributionCenterName,
-            distributionCenterLocation
-          );
-          const newDistributionCenterId = await getDistributionCenterTotal();
-          setLatestFarmId(null);
-          setLatestDistributionCenterId(newDistributionCenterId);
-          setLatestRetailerId(null);
-          setLatestConsumerId(null);
-          toast.success('Distribution center added successfully!');
-        } else if (accountType === 'RETAILER') {
-          if ((await checkAccountType(accountAddress)) === 'Retailer') {
-            toast.error('This account is already a retailer');
-            return;
-          }
-          await addRetailer(accountAddress, retailerName, retailerLocation);
-          const newRetailerId = await getRetailerTotal();
-          setLatestFarmId(null);
-          setLatestDistributionCenterId(null);
-          setLatestRetailerId(newRetailerId);
-          setLatestConsumerId(null);
-          toast.success('Retailer added successfully!');
-        } else if (accountType === 'CONSUMER') {
-          if ((await checkAccountType(accountAddress)) === 'Consumer') {
-            toast.error('This account is already a consumer');
-            return;
-          }
-          await addConsumer(accountAddress, consumerName);
-          const newConsumerId = await getConsumerTotal();
-          setLatestFarmId(null);
-          setLatestDistributionCenterId(null);
-          setLatestRetailerId(null);
-          setLatestConsumerId(newConsumerId);
-          toast.success('Consumer added successfully!');
+          await addVoter(accountAddress);
+          const newVoterId = await getVoterTotal();
+          setLatestVoterId(newVoterId);
+          toast.success("Voter added successfully!");
         }
       } catch (error) {
-        toast.error('Error adding account');
+        toast.error("Error adding account");
       }
     }
   };
@@ -146,20 +85,38 @@ export default function AddAccountPage() {
       currentPage="/add-account"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === 'owneroradmin'
-              ? 'admin'
+          ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
+              ? "admin"
               : role.toLowerCase()) as roles)
-          : 'guest'
+          : "guest"
       }
     >
       <div className="p-4 md:ml-64">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages['/add-account'].title}
+          {pages["/add-account"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 mb-6 md:grid-cols-2">
               <div className="col-span-1 grid gap-6">
+                <div>
+                  <label
+                    htmlFor="account-type"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Account Type
+                  </label>
+                  <select
+                    id="account-type"
+                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                    value={accountType}
+                    onChange={handleAccountTypeChange}
+                  >
+                    <option value="ADMIN">Admin</option>
+                    <option value="VOTER">Voter</option>
+                  </select>
+                </div>
+
                 <div>
                   <label
                     htmlFor="account-address"
@@ -178,30 +135,7 @@ export default function AddAccountPage() {
                   />
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="account-type"
-                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Account Type
-                  </label>
-                  <select
-                    id="account-type"
-                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                    value={accountType}
-                    onChange={handleAccountTypeChange}
-                  >
-                    <option value="ADMIN">Admin</option>
-                    <option value="FARM">Farm</option>
-                    <option value="DISTRIBUTION_CENTER">
-                      Distribution Center
-                    </option>
-                    <option value="RETAILER">Retailer</option>
-                    <option value="CONSUMER">Consumer</option>
-                  </select>
-                </div>
-
-                {accountType === 'FARM' && (
+                {accountType === "FARM" && (
                   <>
                     <div>
                       <label
@@ -240,7 +174,7 @@ export default function AddAccountPage() {
                   </>
                 )}
 
-                {accountType === 'DISTRIBUTION_CENTER' && (
+                {accountType === "DISTRIBUTION_CENTER" && (
                   <>
                     <div>
                       <label
@@ -283,7 +217,7 @@ export default function AddAccountPage() {
                   </>
                 )}
 
-                {accountType === 'RETAILER' && (
+                {accountType === "RETAILER" && (
                   <>
                     <div>
                       <label
@@ -322,7 +256,7 @@ export default function AddAccountPage() {
                   </>
                 )}
 
-                {accountType === 'CONSUMER' && (
+                {accountType === "CONSUMER" && (
                   <div>
                     <label
                       htmlFor="consumer-name"
@@ -356,7 +290,7 @@ export default function AddAccountPage() {
             className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
-            <span className="font-medium">Generated farm ID:</span>{' '}
+            <span className="font-medium">Generated farm ID:</span>{" "}
             {latestFarmId}
           </div>
         )}
@@ -367,7 +301,7 @@ export default function AddAccountPage() {
           >
             <span className="font-medium">
               Generated distribution center ID:
-            </span>{' '}
+            </span>{" "}
             {latestDistributionCenterId}
           </div>
         )}
@@ -376,7 +310,7 @@ export default function AddAccountPage() {
             className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
-            <span className="font-medium">Generated retailer ID:</span>{' '}
+            <span className="font-medium">Generated retailer ID:</span>{" "}
             {latestRetailerId}
           </div>
         )}
@@ -385,7 +319,7 @@ export default function AddAccountPage() {
             className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
-            <span className="font-medium">Generated consumer ID:</span>{' '}
+            <span className="font-medium">Generated consumer ID:</span>{" "}
             {latestConsumerId}
           </div>
         )}

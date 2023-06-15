@@ -12,12 +12,15 @@ const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 const contractABI = dcast.abi;
 
 //IPFS
-const ipfsProjectId = "2OzjVylKREoBrrmfOhppUk1Zdsc";
-const ipfsProjectSecretKey = "36e6243f205dc8e46aa645b89f56862e";
+// const ipfsProjectId = "2RFJ9TZH88NkIl4hllm2Ok8Kt6p";
+// const ipfsProjectSecretKey = "60a7a8e529c46b4f0f1e1dda3ffe3f90";
+const ipfsProjectId = process.env.IPFS_PROJECT_ID as string;
+const ipfsProjectSecretKey = process.env.IPFS_PROJECT_SECRET_KEY as string;
+const ipfsSubdomain = process.env.IPFS_SUBDOMAIN as string;
 
 const authorization =
   "Basic " + btoa(ipfsProjectId + ":" + ipfsProjectSecretKey);
-const subdomain = "https://dtrace.infura-ipfs.io";
+const subdomain = ipfsSubdomain;
 
 const client = ipfsHttpClient({
   host: "infura-ipfs.io",

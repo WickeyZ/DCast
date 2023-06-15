@@ -321,6 +321,21 @@ contract DCast {
         );
     }
 
+    //check account type
+    function checkAccountType(
+        address _accountAddress
+    ) public view returns (string memory) {
+        if (_accountAddress == contractOwner) {
+            return "Owner";
+        } else if (admins[_accountAddress]) {
+            return "Admin";
+        } else if (voters[_accountAddress].voterAddress == _accountAddress) {
+            return "Voter";
+        } else {
+            return "Guest";
+        }
+    }
+
     //add voting session with name
     function addVotingSession(
         string memory _votingSessionName

@@ -23,23 +23,17 @@ function Tooltip({
   );
 }
 
-export type roles =
-  | "guest"
-  | "farm"
-  | "distribution center"
-  | "retailer"
-  | "consumer"
-  | "admin";
+export type roles = "admin" | "voter" | "guest";
 
 export type paths =
   | "/"
+  | "/add-account"
   | "/add-durian"
   | "/catalog"
   | "/stock-in"
   | "/sell"
   | "/add-consumer"
   | "/rate"
-  | "/add-account"
   | "/view-accounts";
 
 export const pages: {
