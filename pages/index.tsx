@@ -1,5 +1,5 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
-import { DTraceContext } from "@/context/Dtrace";
+import { DCastContext } from "@/context/DCast";
 import { VotingPhase } from "@/types";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -12,8 +12,8 @@ export default function CheckDurianPage() {
     currentAccount,
     checkIfWalletIsConnected,
     checkAccountType,
-    checkDurianDetails,
-  } = useContext(DTraceContext);
+    getVotingSessionDetails,
+  } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -33,8 +33,8 @@ export default function CheckDurianPage() {
   console.log("role", role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState<string>("");
-  const [durianDetails, setDurianDetails] = useState<any>(null);
+  const [votingSessionId, setVotingSessionId] = useState<string>("");
+  const [votingSessionDetails, setVotingSessionDetails] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -73,7 +73,7 @@ export default function CheckDurianPage() {
                   htmlFor="durian-id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Durian ID
+                  Voting Session ID
                 </label>
                 <input
                   type="number"

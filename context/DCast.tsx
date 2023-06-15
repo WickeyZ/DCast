@@ -35,15 +35,17 @@ export const fetchContract = (signerOrProvider: any) => {
   return new ethers.Contract(contractAddress, contractABI, signerOrProvider);
 };
 
-interface DTraceData {
+interface DCastData {
   checkIfWalletIsConnected: () => Promise<boolean>;
   connectWallet: () => Promise<void>;
   uploadToIPFS: (file: any) => Promise<string | undefined>;
   isWalletConnected: boolean;
   currentAccount: string;
   error: string;
-  // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   checkAccountType: (accountAddress: string) => Promise<string | null>;
+
+  getVotingSessionDetails() => Promise<any>;
+  // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getAdminList: () => Promise<any>;
   getFarmDataList: () => Promise<any>;
@@ -112,11 +114,10 @@ interface DTraceData {
   ) => Promise<void>;
 }
 
-type DTraceContextProviderProps = {
+type DCastContextProviderProps = {
   children: React.ReactNode;
 };
 
-// const defaultValue: DTraceData[] = [];
 const defaultValue = {
   checkIfWalletIsConnected: () => {},
   connectWallet: () => {},
@@ -147,12 +148,12 @@ const defaultValue = {
   getRTId: () => {},
   sellDurian: () => {},
   rateDurian: () => {},
-} as unknown as DTraceData;
+} as unknown as DCastData;
 
-export const DTraceContext = React.createContext(defaultValue);
-// export const DTraceContext = React.createContext<Partial<DTraceData>>([]);
+export const DCastContext = React.createContext(defaultValue);
+// export const DCastContext = React.createContext<Partial<DCastData>>([]);
 
-export const DCastProvider = ({ children }: DTraceContextProviderProps) => {
+export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [currentAccount, setCurrentAccount] = useState("");
   const [error, setError] = useState("");
@@ -556,6 +557,39 @@ export const DCastProvider = ({ children }: DTraceContextProviderProps) => {
 
   //check.tsx
 
+  const getVotingSessionDetails = async (votingSessionId: number) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const details = await contract.getVotingSessionDetails(votingSessionId);
+      const status = details[2];
+      console.log(status);
+
+      switch (status) {
+        case 0: {
+          const farmDetails = await contract.checkDurianFarmDetails(durianId);
+          return { details, candidateDetails };
+        }
+        case 1: {
+          const farmDetails = await contract.checkDurianFarmDetails(durianId);
+          const DCDetails = await contract.checkDurianDCDetails(durianId);
+          return { details, candidateDetails, voterDetails };
+        }
+        case 2: {
+          const farmDetails = await contract.checkDurianFarmDetails(durianId);
+          const DCDetails = await contract.checkDurianDCDetails(durianId);
+          const RTDetails = await contract.checkDurianRTDetails(durianId);
+          return { status, farmDetails, DCDetails, RTDetails };
+        }
+        default:
+          console.log("Voting Session not found");
+          break;
+      }
+    } catch (error) {
+      setError("Something went wrong in checking voting session details");
+    }
+  };
+
   const checkDurianDetails = async (durianId: number) => {
     try {
       const contract = await connectSmartContract();
@@ -795,7 +829,7 @@ export const DCastProvider = ({ children }: DTraceContextProviderProps) => {
   };
 
   return (
-    <DTraceContext.Provider
+    <DCastContext.Provider
       value={{
         currentAccount,
         error,
@@ -833,6 +867,6 @@ export const DCastProvider = ({ children }: DTraceContextProviderProps) => {
       }}
     >
       {children}
-    </DTraceContext.Provider>
+    </DCastContext.Provider>
   );
 };
