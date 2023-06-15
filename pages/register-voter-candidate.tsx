@@ -1,13 +1,12 @@
-import Layout, { pages, roles } from '@/components/layout/Layout';
-import { DTraceContext } from '../context/Dtrace';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { Rating } from '@/types';
-import { useDropzone } from 'react-dropzone';
-import Datepicker from 'react-tailwindcss-datepicker';
-import { getUnixTime } from 'date-fns';
-import toast from 'react-hot-toast';
+import Layout, { pages, roles } from "@/components/layout/Layout";
+import { DTraceContext } from "../context/Dtrace";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import Datepicker from "react-tailwindcss-datepicker";
+import { getUnixTime } from "date-fns";
+import toast from "react-hot-toast";
 
-export default function AddDurianPage() {
+export default function RegisterVoterCandidatePage() {
   // ---------------------------------------------------------------------//
   const {
     currentAccount,
@@ -24,7 +23,7 @@ export default function AddDurianPage() {
     checkIfWalletIsConnected();
 
     if (currentAccount) {
-      console.log('currentAccount', currentAccount);
+      console.log("currentAccount", currentAccount);
 
       checkAccountType(currentAccount).then((accountType) => {
         setRole(accountType as roles);
@@ -34,21 +33,21 @@ export default function AddDurianPage() {
     }
   }, [currentAccount]);
 
-  console.log('role', role);
+  console.log("role", role);
   // ---------------------------------------------------------------------//
 
-  const [varietyCode, setVarietyCode] = useState('');
-  const [farmId, setFarmId] = useState<string>('');
-  const [treeId, setTreeId] = useState<string>('');
-  const [condition, setCondition] = useState<Rating>('Excellent');
+  const [varietyCode, setVarietyCode] = useState("");
+  const [farmId, setFarmId] = useState<string>("");
+  const [treeId, setTreeId] = useState<string>("");
+  const [condition, setCondition] = useState<Rating>("Excellent");
   const [harvestedDate, setHarvestedDate] = useState({
     startDate: new Date(),
     endDate: new Date(),
   });
   const [harvestedTime, setHarvestedTime] = useState(
-    `${String(new Date().getHours()).padStart(2, '0')}:${String(
+    `${String(new Date().getHours()).padStart(2, "0")}:${String(
       new Date().getMinutes()
-    ).padStart(2, '0')}`
+    ).padStart(2, "0")}`
   );
   const [fileUrl, setFileUrl] = useState<string>();
   const [latestDurianId, setLatestDurianId] = useState<number>();
@@ -58,7 +57,7 @@ export default function AddDurianPage() {
   };
 
   const handleHarvestedDateChange = (date: any) => {
-    console.log('harvestedDate: ', date);
+    console.log("harvestedDate: ", date);
     setHarvestedDate(date);
   };
 
@@ -71,7 +70,7 @@ export default function AddDurianPage() {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'image/*': [] },
+    accept: { "image/*": [] },
     maxSize: 5000000,
   });
 
@@ -79,11 +78,11 @@ export default function AddDurianPage() {
     e.preventDefault();
 
     if (!fileUrl) {
-      alert('Please upload an image of the durian');
+      alert("Please upload an image of the durian");
       return;
     }
 
-    console.log('Form submission data', {
+    console.log("Form submission data", {
       varietyCode,
       farmId,
       treeId,
@@ -96,8 +95,8 @@ export default function AddDurianPage() {
       new Date(harvestedDate.startDate).getFullYear(),
       new Date(harvestedDate.startDate).getMonth(),
       new Date(harvestedDate.startDate).getDate(),
-      parseInt(harvestedTime.split(':')[0], 10),
-      parseInt(harvestedTime.split(':')[1], 10)
+      parseInt(harvestedTime.split(":")[0], 10),
+      parseInt(harvestedTime.split(":")[1], 10)
     );
 
     const unixHarvestedTime = getUnixTime(combinedDate);
@@ -115,9 +114,9 @@ export default function AddDurianPage() {
       );
       const newDurianId = await checkTotalDurian();
       setLatestDurianId(newDurianId);
-      toast.success('Durian added successfully!');
+      toast.success("Durian added successfully!");
     } catch (error) {
-      toast.error('Error adding durian');
+      toast.error("Error adding durian");
     }
   };
 
@@ -134,15 +133,15 @@ export default function AddDurianPage() {
       currentPage="/add-durian"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === 'owneroradmin'
-              ? 'admin'
+          ? ((role.toLowerCase() === "owneroradmin"
+              ? "admin"
               : role.toLowerCase()) as roles)
-          : 'guest'
+          : "guest"
       }
     >
       <div className="p-4 md:ml-64">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages['/add-durian'].title}
+          {pages["/add-durian"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>
@@ -297,7 +296,7 @@ export default function AddDurianPage() {
                       <p className="text-sm text-gray-600">
                         <span className="rounded-md font-medium text-green-600 hover:text-green-500">
                           Upload a file
-                        </span>{' '}
+                        </span>{" "}
                         or drag and drop
                       </p>
                       <p className="text-xs text-gray-500">
@@ -321,7 +320,7 @@ export default function AddDurianPage() {
             className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
             role="alert"
           >
-            <span className="font-medium">Generated durian ID:</span>{' '}
+            <span className="font-medium">Generated durian ID:</span>{" "}
             {latestDurianId}
           </div>
         )}

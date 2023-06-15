@@ -1,21 +1,25 @@
-import Layout, { pages, roles } from '@/components/layout/Layout';
-import { DTraceContext } from '../context/Dtrace';
-import { useContext, useEffect, useState } from 'react';
-import Datepicker from 'react-tailwindcss-datepicker';
-import { getUnixTime } from 'date-fns';
-import toast from 'react-hot-toast';
+import Layout, { pages, roles } from "@/components/layout/Layout";
+import { DTraceContext } from "../context/Dtrace";
+import { useContext, useEffect, useState } from "react";
+import Datepicker from "react-tailwindcss-datepicker";
+import { getUnixTime } from "date-fns";
+import toast from "react-hot-toast";
 
-export default function SellDurianPage() {
+export default function CastVotePage() {
   // ---------------------------------------------------------------------//
-  const { currentAccount, checkIfWalletIsConnected, checkAccountType, sellDurian } =
-    useContext(DTraceContext);
+  const {
+    currentAccount,
+    checkIfWalletIsConnected,
+    checkAccountType,
+    sellDurian,
+  } = useContext(DTraceContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
     checkIfWalletIsConnected();
 
     if (currentAccount) {
-      console.log('currentAccount', currentAccount);
+      console.log("currentAccount", currentAccount);
 
       checkAccountType(currentAccount).then((accountType) => {
         setRole(accountType as roles);
@@ -25,7 +29,7 @@ export default function SellDurianPage() {
     }
   }, [currentAccount]);
 
-  console.log('role', role);
+  console.log("role", role);
   // ---------------------------------------------------------------------//
 
   const [durianId, setDurianId] = useState<number>();
@@ -35,41 +39,41 @@ export default function SellDurianPage() {
     endDate: new Date(),
   });
   const [soldTime, setSoldTime] = useState(
-    `${String(new Date().getHours()).padStart(2, '0')}:${String(
+    `${String(new Date().getHours()).padStart(2, "0")}:${String(
       new Date().getMinutes()
-    ).padStart(2, '0')}`
+    ).padStart(2, "0")}`
   );
 
   const handleSoldDateChange = (date: any) => {
-    console.log('arrivalDate: ', date);
+    console.log("arrivalDate: ", date);
     setSoldDate(date);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submission date', {
+    console.log("Form submission date", {
       durianId,
       consumerId,
     });
 
-  const combinedDate = new Date(
-    new Date (soldDate.startDate).getFullYear(),
-    new Date (soldDate.startDate).getMonth(),
-    new Date (soldDate.startDate).getDate(),
-    parseInt(soldTime.split(':')[0], 10),
-    parseInt(soldTime.split(':')[1], 10)
-  );
+    const combinedDate = new Date(
+      new Date(soldDate.startDate).getFullYear(),
+      new Date(soldDate.startDate).getMonth(),
+      new Date(soldDate.startDate).getDate(),
+      parseInt(soldTime.split(":")[0], 10),
+      parseInt(soldTime.split(":")[1], 10)
+    );
 
-  const unixSoldTime = getUnixTime(combinedDate);
+    const unixSoldTime = getUnixTime(combinedDate);
 
-  try {
-    await sellDurian(durianId as number, consumerId as number, unixSoldTime);
-    toast.success('Durian sold successfully!');
-  } catch (error) {
-    console.error(error);
-    toast.error('Error selling durian');
-    return;
-  }
+    try {
+      await sellDurian(durianId as number, consumerId as number, unixSoldTime);
+      toast.success("Durian sold successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error selling durian");
+      return;
+    }
   };
 
   return (
@@ -77,15 +81,15 @@ export default function SellDurianPage() {
       currentPage="/sell"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === 'owneroradmin'
-              ? 'admin'
+          ? ((role.toLowerCase() === "owneroradmin"
+              ? "admin"
               : role.toLowerCase()) as roles)
-          : 'guest'
+          : "guest"
       }
     >
       <div className="p-4 md:ml-64">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages['/sell'].title}
+          {pages["/sell"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>

@@ -3,7 +3,7 @@ import { DTraceContext } from "@/context/Dtrace";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-export default function ViewAccountsPage() {
+export default function MyVotingSessionsPage() {
   // ---------------------------------------------------------------------//
   const {
     currentAccount,
