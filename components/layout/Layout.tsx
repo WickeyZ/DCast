@@ -27,14 +27,13 @@ export type roles = "admin" | "voter" | "guest";
 
 export type paths =
   | "/"
+  | "/add-voting-session"
+  | "/register-voter-candidate"
+  | "/update-voting-phase"
   | "/add-account"
-  | "/add-durian"
-  | "/catalog"
-  | "/stock-in"
-  | "/sell"
-  | "/add-consumer"
-  | "/rate"
-  | "/view-accounts";
+  | "/view-accounts"
+  | "/my-voting-sessions"
+  | "/cast-vote";
 
 export const pages: {
   [key in paths]: {
@@ -46,37 +45,33 @@ export const pages: {
     title: "Check Voting Session",
     access: "guest",
   },
-  "/add-durian": {
-    title: "Add Durian",
-    access: "farm",
+  "/add-voting-session": {
+    title: "Add Voting Session",
+    access: "admin",
   },
-  "/catalog": {
-    title: "Catalog Durian",
-    access: "distribution center",
+  "/register-voter-candidate": {
+    title: "Register Voter/Candidate",
+    access: "admin",
   },
-  "/stock-in": {
-    title: "Stock In Durian",
-    access: "retailer",
-  },
-  "/sell": {
-    title: "Sell Durian",
-    access: "retailer",
-  },
-  "/rate": {
-    title: "Rate Durian",
-    access: "consumer",
+  "/update-voting-phase": {
+    title: "Update Voting Phase",
+    access: "admin",
   },
   "/add-account": {
     title: "Add Account",
     access: "admin",
   },
-  "/add-consumer": {
-    title: "Add Consumer",
-    access: "retailer",
-  },
   "/view-accounts": {
     title: "View Accounts",
     access: "admin",
+  },
+  "/my-voting-sessions": {
+    title: "My Voting Sessions",
+    access: "voter",
+  },
+  "/cast-vote": {
+    title: "Cast Vote",
+    access: "voter",
   },
 };
 
