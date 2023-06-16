@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SidebarIcons } from "../svg/SidebarIcons.svg";
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { LogoSvg } from "../svg/Logo.svg";
 import { DCastContext } from "../../context/DCast";
 import { useRouter } from "next/router";
@@ -137,6 +137,29 @@ const Layout: React.FC<LayoutProps> = ({
     });
   }, []);
 
+  const [sidebarVisible, setSidebarVisible] = useState(false);
+  const childrenRef = useRef<HTMLDivElement>(null);
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      childrenRef.current &&
+      !childrenRef.current.contains(event.target as Node)
+    ) {
+      setSidebarVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       <button
@@ -145,6 +168,7 @@ const Layout: React.FC<LayoutProps> = ({
         aria-controls="default-sidebar"
         type="button"
         className="inline-flex items-center p-2 mt-2 ml-3 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        onClick={toggleSidebar}
       >
         <span className="sr-only">Open sidebar</span>
         <svg
@@ -164,7 +188,9 @@ const Layout: React.FC<LayoutProps> = ({
 
       <aside
         id="default-sidebar"
-        className="fixed top-0 left-0 z-40 w-72 h-screen transition-transform -translate-x-full md:translate-x-0"
+        className={`fixed top-0 left-0 z-40 w-72 h-screen transition-transform ${
+          sidebarVisible ? "-translate-x-0" : "-translate-x-full"
+        } md:translate-x-0`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 gap-[16px] overflow-y-auto bg-gray-50 dark:bg-gray-800 flex flex-col">
@@ -236,7 +262,17 @@ const Layout: React.FC<LayoutProps> = ({
           </button>
         </div>
       </aside>
-      {children}
+
+      <div
+        ref={childrenRef}
+        style={{
+          pointerEvents: sidebarVisible ? "none" : "auto",
+          filter: sidebarVisible ? "blur(4px) grayscale(40%)" : "none",
+          transition: "filter 0.3s ease",
+        }}
+      >
+        {children}
+      </div>
     </>
   );
 };
