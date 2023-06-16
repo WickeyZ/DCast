@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext, useEffect } from "react";
+import React, { useState, createContext } from "react";
 import Web3Modal from "web3modal";
 import { BigNumber, Signer, ethers } from "ethers";
 import { create as ipfsHttpClient } from "ipfs-http-client";
@@ -44,7 +44,7 @@ interface DCastData {
   error: string;
   checkAccountType: (accountAddress: string) => Promise<string | null>;
 
-  getVotingSessionDetails: (votingSessionId: number) => Promise<any>;
+  getVotingSessionDetails: any;
 
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
@@ -152,7 +152,7 @@ const defaultValue = {
   rateDurian: () => {},
 } as unknown as DCastData;
 
-export const DCastContext = React.createContext(defaultValue);
+export const DCastContext = createContext(defaultValue);
 // export const DCastContext = React.createContext<Partial<DCastData>>([]);
 
 export const DCastProvider = ({ children }: DCastContextProviderProps) => {
@@ -246,8 +246,8 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   const checkAccountType = async (accountAddress: String) => {
     try {
       const contract = await connectSmartContract();
-
       const accountType = await contract.checkAccountType(accountAddress);
+      console.log(accountType);
       return accountType;
     } catch (error) {
       console.error(error);

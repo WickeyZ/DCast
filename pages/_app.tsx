@@ -1,4 +1,4 @@
-import { DCastProvider } from "@/context/Dtrace";
+import { DCastProvider } from "@/context/DCast";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { Inter } from "next/font/google";

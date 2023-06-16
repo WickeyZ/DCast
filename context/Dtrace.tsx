@@ -1,4 +1,4 @@
-import React, { useState, useContext, createContext, useEffect } from "react";
+import React, { useState, createContext } from "react";
 import Web3Modal from "web3modal";
 import { BigNumber, Signer, ethers } from "ethers";
 import { create as ipfsHttpClient } from "ipfs-http-client";

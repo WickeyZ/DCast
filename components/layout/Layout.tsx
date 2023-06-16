@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SidebarIcons } from "../svg/SidebarIcons.svg";
 import React, { useContext, useEffect } from "react";
 import { LogoSvg } from "../svg/Logo.svg";
-import { DTraceContext } from "@/context/Dtrace";
+import { DCastContext } from "../../context/DCast";
 import { useRouter } from "next/router";
 import toast from "react-hot-toast";
 
@@ -87,11 +87,11 @@ const Layout: React.FC<LayoutProps> = ({
   currentRole,
 }) => {
   const { connectWallet, currentAccount, checkIfWalletIsConnected } =
-    useContext(DTraceContext);
+    useContext(DCastContext);
   const router = useRouter();
 
-  const handleConnectMetamask = () => {
-    connectWallet();
+  const handleConnectMetamask = async () => {
+    await connectWallet();
   };
 
   const handleViewAddress = () => {
@@ -156,7 +156,7 @@ const Layout: React.FC<LayoutProps> = ({
 
       <aside
         id="default-sidebar"
-        className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full md:translate-x-0"
+        className="fixed top-0 left-0 z-40 w-72 h-screen transition-transform -translate-x-full md:translate-x-0"
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 gap-[16px] overflow-y-auto bg-gray-50 dark:bg-gray-800 flex flex-col">

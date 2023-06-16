@@ -4,8 +4,6 @@ import { VotingPhase } from "@/types";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-const ratings: VotingPhase[] = ["Registration", "Voting", "Close"];
-
 export default function CheckVotingSessionPage() {
   // ---------------------------------------------------------------------//
   const {
@@ -37,7 +35,7 @@ export default function CheckVotingSessionPage() {
   const [votingSessionDetails, setVotingSessionDetails] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     getVotingSessionDetails(Number(votingSessionId)).then(
       (votingSessionDetails: any) => {
@@ -50,6 +48,16 @@ export default function CheckVotingSessionPage() {
         }
       }
     );
+    // const returnedVotingSessionDetails = await getVotingSessionDetails(
+    //   Number(votingSessionId)
+    // );
+    // setVotingSessionDetails(returnedVotingSessionDetails);
+    // if (votingSessionDetails === undefined) {
+    //   toast.error(`Voting Session with ID ${votingSessionId} not found.`);
+    //   setErrorMessage(
+    //     `Voting Session with ID ${votingSessionId} does not exist.`
+    //   );
+    // }
   };
 
   console.log("votingSessionDetails", votingSessionDetails);
@@ -65,7 +73,7 @@ export default function CheckVotingSessionPage() {
           : "guest"
       }
     >
-      <div className="p-4 md:ml-64">
+      <div className="p-4 md:ml-80">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
           {pages["/"].title}
         </h1>
@@ -470,7 +478,7 @@ export default function CheckVotingSessionPage() {
             </>
           )} */}
 
-        {errorMessage !== "" && !(votingSessionDetails !== null) && (
+        {errorMessage !== "" && votingSessionDetails === null && (
           <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
             <p className="text-red-500">{errorMessage}</p>
           </div>

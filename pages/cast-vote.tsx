@@ -1,5 +1,5 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
-import { DTraceContext } from "../context/Dtrace";
+import { DCastContext } from "../context/DCast";
 import { useContext, useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { getUnixTime } from "date-fns";
@@ -12,7 +12,7 @@ export default function CastVotePage() {
     checkIfWalletIsConnected,
     checkAccountType,
     sellDurian,
-  } = useContext(DTraceContext);
+  } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function CastVotePage() {
           : "guest"
       }
     >
-      <div className="p-4 md:ml-64">
+      <div className="p-4 md:ml-80">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
           {pages["/cast-vote"].title}
         </h1>

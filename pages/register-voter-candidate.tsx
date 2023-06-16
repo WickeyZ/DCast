@@ -1,5 +1,5 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
-import { DTraceContext } from "../context/Dtrace";
+import { DCastContext } from "../context/DCast";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Datepicker from "react-tailwindcss-datepicker";
@@ -13,10 +13,9 @@ export default function RegisterVoterCandidatePage() {
     checkIfWalletIsConnected,
     checkAccountType,
     addDurian,
-    checkRatingStatus,
     getFarmId,
     checkTotalDurian,
-  } = useContext(DTraceContext);
+  } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
   useEffect(() => {
@@ -61,7 +60,7 @@ export default function RegisterVoterCandidatePage() {
     setHarvestedDate(date);
   };
 
-  const { uploadToIPFS } = useContext(DTraceContext);
+  const { uploadToIPFS } = useContext(DCastContext);
 
   const onDrop = useCallback(async (acceptedFiles: any[]) => {
     const url = await uploadToIPFS(acceptedFiles[0]);
@@ -101,7 +100,7 @@ export default function RegisterVoterCandidatePage() {
 
     const unixHarvestedTime = getUnixTime(combinedDate);
 
-    const conditionFarm = await checkRatingStatus(condition);
+    // const conditionFarm = await checkRatingStatus(condition);
 
     try {
       await addDurian(
@@ -139,7 +138,7 @@ export default function RegisterVoterCandidatePage() {
           : "guest"
       }
     >
-      <div className="p-4 md:ml-64">
+      <div className="p-4 md:ml-80">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
           {pages["/register-voter-candidate"].title}
         </h1>
