@@ -86,11 +86,19 @@ const Layout: React.FC<LayoutProps> = ({
   currentPage,
   currentRole,
 }) => {
-  const { connectWallet, currentAccount, checkIfWalletIsConnected } =
-    useContext(DCastContext);
+  const {
+    connectWallet,
+    currentAccount,
+    checkIfWalletIsConnected,
+    isWalletConnected,
+  } = useContext(DCastContext);
   const router = useRouter();
 
   const handleConnectMetamask = async () => {
+    if (isWalletConnected === true) {
+      toast.success("An account is connected");
+      return;
+    }
     await connectWallet();
   };
 

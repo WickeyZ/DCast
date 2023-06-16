@@ -45,6 +45,9 @@ interface DCastData {
   checkAccountType: (accountAddress: string) => Promise<string | null>;
 
   getVotingSessionDetails: any;
+  addAdmin: (adminAddress: String) => Promise<void>;
+  addVoter: (voterAddress: String) => Promise<void>;
+  getVoterCount: () => Promise<any>;
 
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
@@ -53,7 +56,7 @@ interface DCastData {
   getDistributionCenterDataList: () => Promise<any>;
   getRetailerDataList: () => Promise<any>;
   getConsumerDataList: () => Promise<any>;
-  addAdmin: (adminAddress: String) => Promise<void>;
+  // addAdmin: (adminAddress: String) => Promise<void>;
   addFarm: (
     farmAddress: String,
     farmName: String,
@@ -129,13 +132,17 @@ const defaultValue = {
   error: "",
   checkAccountType: () => {},
   getVotingSessionDetails: () => {},
+  addAdmin: () => {},
+  addVoter: () => {},
+  getVoterCount: () => {},
+
   getContractOwner: () => {},
   getAdminList: () => {},
   getFarmDataList: () => {},
   getDistributionCenterDataList: () => {},
   getRetailerDataList: () => {},
   getConsumerDataList: () => {},
-  addAdmin: () => {},
+  // addAdmin: () => {},
   addFarm: () => {},
   addDistributionCenter: () => {},
   addRetailer: () => {},
@@ -419,11 +426,36 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       const contract = await connectSmartContract();
 
       const admin = await contract.addAdmin(adminAddress);
-      admin.wait();
+      await admin.wait();
       console.log(admin);
     } catch (error) {
       setError("Something went wrong in adding admin");
       throw error;
+    }
+  };
+
+  const addVoter = async (voterAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voter = await contract.addVoter(voterAddress);
+      await voter.wait();
+      console.log(voter);
+    } catch (error) {
+      setError("Something went wrong in adding voter");
+      throw error;
+    }
+  };
+
+  const getVoterCount = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterCount: number = (await contract.getVoterCount()).toNumber();
+      console.log(voterCount);
+      return voterCount;
+    } catch (error) {
+      setError("Something went wrong in checking voter count");
     }
   };
 
@@ -878,6 +910,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         uploadToIPFS,
         checkAccountType,
         getVotingSessionDetails,
+        addAdmin,
+        addVoter,
+        getVoterCount,
         // checkRatingStatus,
         getContractOwner,
         getAdminList,
@@ -885,7 +920,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         getDistributionCenterDataList,
         getRetailerDataList,
         getConsumerDataList,
-        addAdmin,
+        // addAdmin,
         addFarm,
         getFarmTotal,
         addDistributionCenter,

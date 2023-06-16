@@ -77,7 +77,7 @@ export default function MyVotingSessionsPage() {
 
   return (
     <Layout
-      currentPage="/view-accounts"
+      currentPage="/my-voting-sessions"
       currentRole={
         role !== null
           ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
@@ -88,7 +88,7 @@ export default function MyVotingSessionsPage() {
     >
       <div className="p-4 md:ml-80">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages["/view-accounts"].title}
+          {pages["/my-voting-sessions"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>
