@@ -104,41 +104,43 @@ export default function AddAccountPage() {
         <div>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 mb-6 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="account-type"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Account Type
-                </label>
-                <select
-                  id="account-type"
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="Admin/Voter"
-                  value={accountType}
-                  onChange={handleAccountTypeChange}
-                >
-                  <option value="ADMIN">Admin</option>
-                  <option value="VOTER">Voter</option>
-                </select>
-              </div>
+              <div className="col-span-1 grid gap-6">
+                <div>
+                  <label
+                    htmlFor="account-type"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Account Type
+                  </label>
+                  <select
+                    id="account-type"
+                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                    placeholder="Admin/Voter"
+                    value={accountType}
+                    onChange={handleAccountTypeChange}
+                  >
+                    <option value="ADMIN">Admin</option>
+                    <option value="VOTER">Voter</option>
+                  </select>
+                </div>
 
-              <div>
-                <label
-                  htmlFor="account-address"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Account Address
-                </label>
-                <input
-                  type="text"
-                  id="account-address"
-                  value={accountAddress}
-                  onChange={(e) => setAccountAddress(e.target.value)}
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="e.g. 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
-                  required
-                />
+                <div>
+                  <label
+                    htmlFor="account-address"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Account Address
+                  </label>
+                  <input
+                    type="text"
+                    id="account-address"
+                    value={accountAddress}
+                    onChange={(e) => setAccountAddress(e.target.value)}
+                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                    placeholder="e.g. 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
+                    required
+                  />
+                </div>
               </div>
             </div>
             <button
