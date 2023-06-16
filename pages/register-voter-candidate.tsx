@@ -130,10 +130,10 @@ export default function RegisterVoterCandidatePage() {
 
   return (
     <Layout
-      currentPage="/add-durian"
+      currentPage="/register-voter-candidate"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === "owneroradmin"
+          ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
               ? "admin"
               : role.toLowerCase()) as roles)
           : "guest"
@@ -141,7 +141,7 @@ export default function RegisterVoterCandidatePage() {
     >
       <div className="p-4 md:ml-64">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages["/add-durian"].title}
+          {pages["/register-voter-candidate"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>

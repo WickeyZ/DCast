@@ -79,10 +79,10 @@ export default function UpdateVotingPhasePage() {
 
   return (
     <Layout
-      currentPage="/sell"
+      currentPage="/update-voting-phase"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === "owneroradmin"
+          ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
               ? "admin"
               : role.toLowerCase()) as roles)
           : "guest"
@@ -90,7 +90,7 @@ export default function UpdateVotingPhasePage() {
     >
       <div className="p-4 md:ml-64">
         <h1 className="text-2xl font-semibold text-slate-800 mt-3 mb-5">
-          {pages["/sell"].title}
+          {pages["/update-voting-phase"].title}
         </h1>
         <div>
           <form onSubmit={handleSubmit}>

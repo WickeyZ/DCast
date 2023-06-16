@@ -44,7 +44,8 @@ interface DCastData {
   error: string;
   checkAccountType: (accountAddress: string) => Promise<string | null>;
 
-  getVotingSessionDetails() => Promise<any>;
+  getVotingSessionDetails: (votingSessionId: number) => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getAdminList: () => Promise<any>;
@@ -74,7 +75,7 @@ interface DCastData {
   addConsumer: (consumerAddress: String, consumerName: String) => Promise<void>;
   getFarmTotal: () => Promise<any>;
   checkTotalDurian: () => Promise<any>;
-  checkDurianDetails: any;
+  // checkDurianDetails: any;
   addDurian: (
     farmID: number,
     treeID: number,
@@ -127,6 +128,7 @@ const defaultValue = {
   currentAccount: "",
   error: "",
   checkAccountType: () => {},
+  getVotingSessionDetails: () => {},
   getContractOwner: () => {},
   getAdminList: () => {},
   getFarmDataList: () => {},
@@ -139,7 +141,7 @@ const defaultValue = {
   addRetailer: () => {},
   addConsumer: () => {},
   checkTotalDurian: () => {},
-  checkDurianDetails: () => {},
+  // checkDurianDetails: () => {},
   addDurian: () => {},
   getFarmId: () => {},
   addDurianDCDetails: () => {},
@@ -562,89 +564,126 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       const contract = await connectSmartContract();
 
       const details = await contract.getVotingSessionDetails(votingSessionId);
-      const status = details[2];
-      console.log(status);
 
-      switch (status) {
-        case 0: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          return { details, candidateDetails };
-        }
-        case 1: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          return { details, candidateDetails, voterDetails };
-        }
-        case 2: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          const RTDetails = await contract.checkDurianRTDetails(durianId);
-          return { status, farmDetails, DCDetails, RTDetails };
-        }
-        default:
-          console.log("Voting Session not found");
-          break;
+      if (details[1] !== "") {
+        const phase = details[2];
+        console.log(phase);
+
+        //Get Candidate Details
+        const candidateLength = await contract.getVotingSessionCandidateCount(
+          votingSessionId
+        );
+
+        const candidateIds = Array.from(
+          { length: candidateLength },
+          (_, i) => i + 1
+        );
+
+        const candidateDetailPromises = candidateIds.map((candidateId) =>
+          contract.getVotingSessionCandidateDetails(
+            votingSessionId,
+            candidateId
+          )
+        );
+
+        const candidateDetails = await Promise.all(candidateDetailPromises);
+
+        //Get Winner Ids
+        const winnerCandidateIds =
+          await contract.getVotingSessionWinnerCandidateIDs(votingSessionId);
+
+        //Get Voter Details
+        const voterIds = await contract.getVotingSessionRegisteredVoterIDs(
+          votingSessionId
+        );
+        const allVoterAddresses = await contract.getVoterAddresses();
+        const voterAddressPromises = voterIds.map(
+          (voterId: number) => allVoterAddresses[voterId - 1]
+        );
+        const voterAddresses = await Promise.all(voterAddressPromises);
+        const voterDetailPromises = voterAddresses.map((voterAddress) =>
+          contract.getVoterDetails(voterAddress)
+        );
+
+        const voterDetails = await Promise.all(voterDetailPromises);
+
+        //Get Voter Voting Session Details (voting weight and voted candidate)
+        const voterVSDetailPromises = voterAddresses.map((voterAddress) =>
+          contract.getVoterVotingSessionDetails(voterAddress, votingSessionId)
+        );
+
+        const voterVSDetails = await Promise.all(voterVSDetailPromises);
+
+        return {
+          details,
+          candidateDetails,
+          winnerCandidateIds,
+          voterDetails,
+          voterVSDetails,
+        };
+      } else {
+        return null;
       }
     } catch (error) {
       setError("Something went wrong in checking voting session details");
     }
   };
 
-  const checkDurianDetails = async (durianId: number) => {
-    try {
-      const contract = await connectSmartContract();
+  // const checkDurianDetails = async (durianId: number) => {
+  //   try {
+  //     const contract = await connectSmartContract();
 
-      const status = await contract.checkDurianStatus(durianId);
-      console.log(status);
+  //     const status = await contract.checkDurianStatus(durianId);
+  //     console.log(status);
 
-      switch (status) {
-        case 0: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          return { status, farmDetails };
-        }
-        case 1: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          return { status, farmDetails, DCDetails };
-        }
-        case 2: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          const RTDetails = await contract.checkDurianRTDetails(durianId);
-          return { status, farmDetails, DCDetails, RTDetails };
-        }
-        case 3: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          const RTDetails = await contract.checkDurianRTDetails(durianId);
-          const soldDetails = await contract.checkDurianSoldDetails(durianId);
-          return { status, farmDetails, DCDetails, RTDetails, soldDetails };
-        }
-        case 4: {
-          const farmDetails = await contract.checkDurianFarmDetails(durianId);
-          const DCDetails = await contract.checkDurianDCDetails(durianId);
-          const RTDetails = await contract.checkDurianRTDetails(durianId);
-          const soldDetails = await contract.checkDurianSoldDetails(durianId);
-          const ratingDetails = await contract.checkDurianRatingDetails(
-            durianId
-          );
-          return {
-            status,
-            farmDetails,
-            DCDetails,
-            RTDetails,
-            soldDetails,
-            ratingDetails,
-          };
-        }
-        default:
-          console.log("Durian not found");
-          break;
-      }
-    } catch (error) {
-      setError("Something went wrong in checking durian details");
-    }
-  };
+  //     switch (status) {
+  //       case 0: {
+  //         const farmDetails = await contract.checkDurianFarmDetails(durianId);
+  //         return { status, farmDetails };
+  //       }
+  //       case 1: {
+  //         const farmDetails = await contract.checkDurianFarmDetails(durianId);
+  //         const DCDetails = await contract.checkDurianDCDetails(durianId);
+  //         return { status, farmDetails, DCDetails };
+  //       }
+  //       case 2: {
+  //         const farmDetails = await contract.checkDurianFarmDetails(durianId);
+  //         const DCDetails = await contract.checkDurianDCDetails(durianId);
+  //         const RTDetails = await contract.checkDurianRTDetails(durianId);
+  //         return { status, farmDetails, DCDetails, RTDetails };
+  //       }
+  //       case 3: {
+  //         const farmDetails = await contract.checkDurianFarmDetails(durianId);
+  //         const DCDetails = await contract.checkDurianDCDetails(durianId);
+  //         const RTDetails = await contract.checkDurianRTDetails(durianId);
+  //         const soldDetails = await contract.checkDurianSoldDetails(durianId);
+  //         return { status, farmDetails, DCDetails, RTDetails, soldDetails };
+  //       }
+  //       case 4: {
+  //         const farmDetails = await contract.checkDurianFarmDetails(durianId);
+  //         const DCDetails = await contract.checkDurianDCDetails(durianId);
+  //         const RTDetails = await contract.checkDurianRTDetails(durianId);
+  //         const soldDetails = await contract.checkDurianSoldDetails(durianId);
+  //         const ratingDetails = await contract.checkDurianRatingDetails(
+  //           durianId
+  //         );
+  //         return {
+  //           status,
+  //           farmDetails,
+  //           DCDetails,
+  //           RTDetails,
+  //           soldDetails,
+  //           ratingDetails,
+  //         };
+  //       }
+  //       default:
+  //         console.log("Durian not found");
+  //         break;
+  //     }
+  //   } catch (error) {
+  //     setError("Something went wrong in checking durian details");
+  //   }
+  // };
 
   //add-durian.tsx
   const addDurian = async (
@@ -837,8 +876,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         connectWallet,
         isWalletConnected,
         uploadToIPFS,
-        // checkRatingStatus,
         checkAccountType,
+        getVotingSessionDetails,
+        // checkRatingStatus,
         getContractOwner,
         getAdminList,
         getFarmDataList,
@@ -855,7 +895,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         addConsumer,
         getConsumerTotal,
         checkTotalDurian,
-        checkDurianDetails,
+        // checkDurianDetails,
         addDurian,
         getFarmId,
         addDurianDCDetails,

@@ -80,7 +80,7 @@ export default function MyVotingSessionsPage() {
       currentPage="/view-accounts"
       currentRole={
         role !== null
-          ? ((role.toLowerCase() === "owneroradmin"
+          ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
               ? "admin"
               : role.toLowerCase()) as roles)
           : "guest"
