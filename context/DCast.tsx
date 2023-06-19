@@ -42,16 +42,25 @@ interface DCastData {
   isWalletConnected: boolean;
   currentAccount: string;
   error: string;
+
+  //general
   checkAccountType: (accountAddress: string) => Promise<string | null>;
 
+  //check-voting-session (index)
   getVotingSessionDetails: any;
+
+  //add-account
   addAdmin: (adminAddress: String) => Promise<void>;
   addVoter: (voterAddress: String) => Promise<void>;
   getVoterCount: () => Promise<any>;
 
+  //view-accounts
+  getContractOwnerAddress: () => Promise<string>;
+  getAdminAddresses: () => Promise<any>;
+  getVoterDetailsList: () => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
-  getAdminList: () => Promise<any>;
   getFarmDataList: () => Promise<any>;
   getDistributionCenterDataList: () => Promise<any>;
   getRetailerDataList: () => Promise<any>;
@@ -126,7 +135,6 @@ const defaultValue = {
   checkIfWalletIsConnected: () => {},
   connectWallet: () => {},
   uploadToIPFS: () => {},
-  // checkRatingStatus: () => {},
   isWalletConnected: false,
   currentAccount: "",
   error: "",
@@ -135,9 +143,12 @@ const defaultValue = {
   addAdmin: () => {},
   addVoter: () => {},
   getVoterCount: () => {},
+  getContractOwnerAddress: () => {},
+  getAdminAddresses: () => {},
+  getVoterDetailsList: () => {},
 
+  // checkRatingStatus: () => {},
   getContractOwner: () => {},
-  getAdminList: () => {},
   getFarmDataList: () => {},
   getDistributionCenterDataList: () => {},
   getRetailerDataList: () => {},
@@ -166,6 +177,15 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   const [isWalletConnected, setIsWalletConnected] = useState(false);
   const [currentAccount, setCurrentAccount] = useState("");
   const [error, setError] = useState("");
+
+  // CONNECTING SMART CONTRACT
+  const connectSmartContract = async () => {
+    const web3Modal = new Web3Modal();
+    const connection = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(connection);
+    const signer = provider.getSigner();
+    return fetchContract(signer);
+  };
 
   // CONNECTING METAMASK
   const checkIfWalletIsConnected = async () => {
@@ -215,6 +235,187 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     }
   };
 
+  //general
+  const checkAccountType = async (accountAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+      const accountType = await contract.checkAccountType(accountAddress);
+      console.log(accountType);
+      return accountType;
+    } catch (error) {
+      console.error(error);
+      setError("Something went wrong in checking account type");
+    }
+  };
+
+  //check-voting-session (index)
+  const getVotingSessionDetails = async (votingSessionId: number) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const details = await contract.getVotingSessionDetails(votingSessionId);
+
+      if (details[1] !== "") {
+        const phase = details[2];
+        console.log(phase);
+
+        //Get Candidate Details
+        const candidateLength = await contract.getVotingSessionCandidateCount(
+          votingSessionId
+        );
+
+        const candidateIds = Array.from(
+          { length: candidateLength },
+          (_, i) => i + 1
+        );
+
+        const candidateDetailPromises = candidateIds.map((candidateId) =>
+          contract.getVotingSessionCandidateDetails(
+            votingSessionId,
+            candidateId
+          )
+        );
+
+        const candidateDetails = await Promise.all(candidateDetailPromises);
+
+        //Get Winner Ids
+        const winnerCandidateIds =
+          await contract.getVotingSessionWinnerCandidateIDs(votingSessionId);
+
+        //Get Voter Details
+        const voterIds = await contract.getVotingSessionRegisteredVoterIDs(
+          votingSessionId
+        );
+        const allVoterAddresses = await contract.getVoterAddresses();
+        const voterAddressPromises = voterIds.map(
+          (voterId: number) => allVoterAddresses[voterId - 1]
+        );
+        const voterAddresses = await Promise.all(voterAddressPromises);
+        const voterDetailPromises = voterAddresses.map((voterAddress) =>
+          contract.getVoterDetails(voterAddress)
+        );
+
+        const voterDetails = await Promise.all(voterDetailPromises);
+
+        //Get Voter Voting Session Details (voting weight and voted candidate)
+        const voterVSDetailPromises = voterAddresses.map((voterAddress) =>
+          contract.getVoterVotingSessionDetails(voterAddress, votingSessionId)
+        );
+
+        const voterVSDetails = await Promise.all(voterVSDetailPromises);
+
+        return {
+          details,
+          candidateDetails,
+          winnerCandidateIds,
+          voterDetails,
+          voterVSDetails,
+        };
+      } else {
+        return null;
+      }
+    } catch (error) {
+      setError("Something went wrong in checking voting session details");
+    }
+  };
+
+  //add-account
+  const addAdmin = async (adminAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const admin = await contract.addAdmin(adminAddress);
+      await admin.wait();
+      console.log(admin);
+    } catch (error) {
+      setError("Something went wrong in adding admin");
+      throw error;
+    }
+  };
+
+  const addVoter = async (voterAddress: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voter = await contract.addVoter(voterAddress);
+      await voter.wait();
+      console.log(voter);
+    } catch (error) {
+      setError("Something went wrong in adding voter");
+      throw error;
+    }
+  };
+
+  const getVoterCount = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterCount: number = (await contract.getVoterCount()).toNumber();
+      console.log(voterCount);
+      return voterCount;
+    } catch (error) {
+      setError("Something went wrong in checking voter count");
+    }
+  };
+
+  //view-accounts
+  const getContractOwnerAddress = async () => {
+    //return: ownerAddress
+    try {
+      const contract = await connectSmartContract();
+
+      const owner = await contract.getContractOwnerAddress();
+      console.log(owner);
+      return owner;
+    } catch (error) {
+      setError("Something went wrong in getting contract owner address");
+    }
+  };
+
+  const getAdminAddresses = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const admin = await contract.getAdminAddresses();
+      console.log(admin);
+      //return: [] of admin addresses
+      return admin;
+    } catch (error) {
+      setError("Something went wrong in getting admin addresses list");
+    }
+  };
+
+  const getVoterDetailsList = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterAddresses = await contract.getVoterAddresses();
+      console.log(voterAddresses);
+
+      const voterDetailsPromises = voterAddresses.map(
+        async (voterAddress: any) => {
+          const singleVoterDetails = await contract.getVoterDetails(
+            voterAddress
+          );
+          return singleVoterDetails;
+        }
+      );
+
+      const voterDetailsList = await Promise.all(voterDetailsPromises);
+
+      // singleVoterDetails (in array form):
+      // [voterID: number,
+      // voterAddress: string
+      // sessionsParticipated: number[] ]
+
+      //return: farmLength:number, [] of singleFarmData
+      return { voterDetailsList };
+    } catch (error) {
+      console.log("Error");
+      setError("Something went wrong in fetching data.");
+    }
+  };
+
   // const checkRatingStatus = async (rating: VotingPhase) => {
   //   let num: number = 0;
   //   switch (rating) {
@@ -240,28 +441,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   //   return num;
   // };
 
-  const connectSmartContract = async () => {
-    // CONNECTING SMART CONTRACT
-    const web3Modal = new Web3Modal();
-    const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
-    const signer = provider.getSigner();
-    return fetchContract(signer);
-  };
-
-  //check account type
-  const checkAccountType = async (accountAddress: String) => {
-    try {
-      const contract = await connectSmartContract();
-      const accountType = await contract.checkAccountType(accountAddress);
-      console.log(accountType);
-      return accountType;
-    } catch (error) {
-      console.error(error);
-      setError("Something went wrong in checking account type");
-    }
-  };
-
   //all-account.tsx
   const getContractOwner = async () => {
     //return: ownerAddress
@@ -273,19 +452,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       return owner;
     } catch (error) {
       setError("Something went wrong in getting contract owner");
-    }
-  };
-
-  const getAdminList = async () => {
-    try {
-      const contract = await connectSmartContract();
-
-      const admin = await contract.getAdminList();
-      console.log(admin);
-      //return: [] of admin addresses
-      return admin;
-    } catch (error) {
-      setError("Something went wrong in getting admin list");
     }
   };
 
@@ -421,44 +587,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   };
 
   //add-account.tsx
-  const addAdmin = async (adminAddress: String) => {
-    try {
-      const contract = await connectSmartContract();
-
-      const admin = await contract.addAdmin(adminAddress);
-      await admin.wait();
-      console.log(admin);
-    } catch (error) {
-      setError("Something went wrong in adding admin");
-      throw error;
-    }
-  };
-
-  const addVoter = async (voterAddress: String) => {
-    try {
-      const contract = await connectSmartContract();
-
-      const voter = await contract.addVoter(voterAddress);
-      await voter.wait();
-      console.log(voter);
-    } catch (error) {
-      setError("Something went wrong in adding voter");
-      throw error;
-    }
-  };
-
-  const getVoterCount = async () => {
-    try {
-      const contract = await connectSmartContract();
-
-      const voterCount: number = (await contract.getVoterCount()).toNumber();
-      console.log(voterCount);
-      return voterCount;
-    } catch (error) {
-      setError("Something went wrong in checking voter count");
-    }
-  };
-
   const getFarmTotal = async () => {
     try {
       const contract = await connectSmartContract();
@@ -590,76 +718,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   };
 
   //check.tsx
-
-  const getVotingSessionDetails = async (votingSessionId: number) => {
-    try {
-      const contract = await connectSmartContract();
-
-      const details = await contract.getVotingSessionDetails(votingSessionId);
-
-      if (details[1] !== "") {
-        const phase = details[2];
-        console.log(phase);
-
-        //Get Candidate Details
-        const candidateLength = await contract.getVotingSessionCandidateCount(
-          votingSessionId
-        );
-
-        const candidateIds = Array.from(
-          { length: candidateLength },
-          (_, i) => i + 1
-        );
-
-        const candidateDetailPromises = candidateIds.map((candidateId) =>
-          contract.getVotingSessionCandidateDetails(
-            votingSessionId,
-            candidateId
-          )
-        );
-
-        const candidateDetails = await Promise.all(candidateDetailPromises);
-
-        //Get Winner Ids
-        const winnerCandidateIds =
-          await contract.getVotingSessionWinnerCandidateIDs(votingSessionId);
-
-        //Get Voter Details
-        const voterIds = await contract.getVotingSessionRegisteredVoterIDs(
-          votingSessionId
-        );
-        const allVoterAddresses = await contract.getVoterAddresses();
-        const voterAddressPromises = voterIds.map(
-          (voterId: number) => allVoterAddresses[voterId - 1]
-        );
-        const voterAddresses = await Promise.all(voterAddressPromises);
-        const voterDetailPromises = voterAddresses.map((voterAddress) =>
-          contract.getVoterDetails(voterAddress)
-        );
-
-        const voterDetails = await Promise.all(voterDetailPromises);
-
-        //Get Voter Voting Session Details (voting weight and voted candidate)
-        const voterVSDetailPromises = voterAddresses.map((voterAddress) =>
-          contract.getVoterVotingSessionDetails(voterAddress, votingSessionId)
-        );
-
-        const voterVSDetails = await Promise.all(voterVSDetailPromises);
-
-        return {
-          details,
-          candidateDetails,
-          winnerCandidateIds,
-          voterDetails,
-          voterVSDetails,
-        };
-      } else {
-        return null;
-      }
-    } catch (error) {
-      setError("Something went wrong in checking voting session details");
-    }
-  };
 
   // const checkDurianDetails = async (durianId: number) => {
   //   try {
@@ -913,9 +971,11 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         addAdmin,
         addVoter,
         getVoterCount,
+        getContractOwnerAddress,
+        getAdminAddresses,
+        getVoterDetailsList,
         // checkRatingStatus,
         getContractOwner,
-        getAdminList,
         getFarmDataList,
         getDistributionCenterDataList,
         getRetailerDataList,
