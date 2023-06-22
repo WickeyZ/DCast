@@ -11,7 +11,8 @@ export default function AddVotingSessionPage() {
     currentAccount,
     checkIfWalletIsConnected,
     checkAccountType,
-    sellDurian,
+    addVotingSession,
+    getVotingSessionCount,
   } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -32,8 +33,10 @@ export default function AddVotingSessionPage() {
   console.log("role", role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState<number>();
-  const [consumerId, setConsumerId] = useState<number>();
+  const [votingSessionName, setVotingSessionName] = useState<String>();
+  const [latestVotingSessionId, setLatestVotingSessionId] = useState<
+    number | null
+  >(null);
   const [soldDate, setSoldDate] = useState({
     startDate: new Date(),
     endDate: new Date(),

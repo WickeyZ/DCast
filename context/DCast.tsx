@@ -59,6 +59,10 @@ interface DCastData {
   getAdminAddresses: () => Promise<any>;
   getVoterDetailsList: () => Promise<any>;
 
+  //add-voting-session
+  addVotingSession: (votingSessionName: String) => Promise<void>;
+  getVotingSessionCount: () => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getFarmDataList: () => Promise<any>;
@@ -146,6 +150,8 @@ const defaultValue = {
   getContractOwnerAddress: () => {},
   getAdminAddresses: () => {},
   getVoterDetailsList: () => {},
+  addVotingSession: () => {},
+  getVotingSessionCount: () => {},
 
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
@@ -413,6 +419,34 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     } catch (error) {
       console.log("Error");
       setError("Something went wrong in fetching data.");
+    }
+  };
+
+  //add-voting-session
+  const addVotingSession = async (votingSessionName: String) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const votingSession = await contract.addVotingSession(votingSessionName);
+      await votingSession.wait();
+      console.log(votingSession);
+    } catch (error) {
+      setError("Something went wrong in adding voter");
+      throw error;
+    }
+  };
+
+  const getVotingSessionCount = async () => {
+    try {
+      const contract = await connectSmartContract();
+
+      const votingSessionCount: number = (
+        await contract.getVotingSessionCount()
+      ).toNumber();
+      console.log(votingSessionCount);
+      return votingSessionCount;
+    } catch (error) {
+      setError("Something went wrong in checking voter count");
     }
   };
 
@@ -974,6 +1008,8 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         getContractOwnerAddress,
         getAdminAddresses,
         getVoterDetailsList,
+        addVotingSession,
+        getVotingSessionCount,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,
