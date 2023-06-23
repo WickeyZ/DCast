@@ -158,15 +158,6 @@ contract DCast {
         _;
     }
 
-    modifier votingSessionNotExists(uint256 _votingSessionID) {
-        require(
-            votingSessions[_votingSessionID].votingSessionID !=
-                _votingSessionID,
-            "Voting session already exists"
-        );
-        _;
-    }
-
     modifier votingSessionExists(uint256 _votingSessionID) {
         require(
             votingSessions[_votingSessionID].votingSessionID ==
@@ -339,7 +330,7 @@ contract DCast {
     //add voting session with name
     function addVotingSession(
         string memory _votingSessionName
-    ) public onlyAdmin votingSessionNotExists(votingSessionCount.current()) {
+    ) public onlyAdmin {
         votingSessionCount.increment();
         uint256 _votingSessionID = votingSessionCount.current();
 
