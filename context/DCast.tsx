@@ -261,7 +261,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
       const details = await contract.getVotingSessionDetails(votingSessionId);
 
-      if (details[1] !== "") {
+      if (details[0] != 0) {
         const phase = details[2];
         console.log(phase);
 
