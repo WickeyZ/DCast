@@ -63,6 +63,20 @@ interface DCastData {
   addVotingSession: (votingSessionName: String) => Promise<void>;
   getVotingSessionCount: () => Promise<any>;
 
+  //register-voter-candidate
+  registerVoter: (
+    votingSessionID: number,
+    voterID: number,
+    votingWeight: number
+  ) => Promise<void>;
+  registerCandidate: (
+    votingSessionID: number,
+    candidateName: String,
+    description: String,
+    candidateImageIPFS_URL: String
+  ) => Promise<void>;
+  getVotingSessionCandidateCount: (votingSessionID: number) => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getFarmDataList: () => Promise<any>;
@@ -152,6 +166,9 @@ const defaultValue = {
   getVoterDetailsList: () => {},
   addVotingSession: () => {},
   getVotingSessionCount: () => {},
+  registerVoter: () => {},
+  registerCandidate: () => {},
+  getVotingSessionCandidateCount: () => {},
 
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
@@ -447,6 +464,65 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       return votingSessionCount;
     } catch (error) {
       setError("Something went wrong in checking voter count");
+    }
+  };
+
+  const registerVoter = async (
+    votingSessionID: number,
+    voterID: number,
+    votingWeight: number
+  ) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const registerVoter = await contract.registerVoter(
+        votingSessionID,
+        voterID,
+        votingWeight
+      );
+      registerVoter.wait();
+      console.log(registerVoter);
+    } catch (error) {
+      setError("Something went wrong in registering voter");
+      throw error;
+    }
+  };
+
+  const registerCandidate = async (
+    votingSessionID: number,
+    candidateName: String,
+    description: String,
+    candidateImageIPFS_URL: String
+  ) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const registerCandidate = await contract.registerCandidate(
+        votingSessionID,
+        candidateName,
+        description,
+        candidateImageIPFS_URL
+      );
+      registerCandidate.wait();
+      console.log(registerCandidate);
+    } catch (error) {
+      setError("Something went wrong in registering candidate");
+      throw error;
+    }
+  };
+
+  const getVotingSessionCandidateCount = async (votingSessionID: number) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const candidateCount: number = (
+        await contract.getVotingSessionCandidateCount(votingSessionID)
+      ).toNumber();
+      console.log(candidateCount);
+      return candidateCount;
+    } catch (error) {
+      setError("Something went wrong in getting candidate count");
+      throw error;
     }
   };
 
@@ -1010,6 +1086,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         getVoterDetailsList,
         addVotingSession,
         getVotingSessionCount,
+        registerVoter,
+        registerCandidate,
+        getVotingSessionCandidateCount,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,
