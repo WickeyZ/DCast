@@ -12,11 +12,10 @@ const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 const contractABI = dcast.abi;
 
 //IPFS
-// const ipfsProjectId = "2RFJ9TZH88NkIl4hllm2Ok8Kt6p";
-// const ipfsProjectSecretKey = "60a7a8e529c46b4f0f1e1dda3ffe3f90";
-const ipfsProjectId = process.env.IPFS_PROJECT_ID as string;
-const ipfsProjectSecretKey = process.env.IPFS_PROJECT_SECRET_KEY as string;
-const ipfsSubdomain = process.env.IPFS_SUBDOMAIN as string;
+const ipfsProjectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID as string;
+const ipfsProjectSecretKey = process.env
+  .NEXT_PUBLIC_IPFS_PROJECT_SECRET_KEY as string;
+const ipfsSubdomain = process.env.NEXT_PUBLIC_IPFS_SUBDOMAIN as string;
 
 const authorization =
   "Basic " + btoa(ipfsProjectId + ":" + ipfsProjectSecretKey);
@@ -255,6 +254,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     } catch (error) {
       console.log(error);
       setError("Error uploading file to IPFS");
+      throw error;
     }
   };
 
@@ -294,8 +294,8 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
         const candidateDetailPromises = candidateIds.map((candidateId) =>
           contract.getVotingSessionCandidateDetails(
-            votingSessionId,
-            candidateId
+            votingSessionId as number,
+            candidateId as number
           )
         );
 
@@ -480,7 +480,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         voterID,
         votingWeight
       );
-      registerVoter.wait();
+      await registerVoter.wait();
       console.log(registerVoter);
     } catch (error) {
       setError("Something went wrong in registering voter");
@@ -503,7 +503,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         description,
         candidateImageIPFS_URL
       );
-      registerCandidate.wait();
+      await registerCandidate.wait();
       console.log(registerCandidate);
     } catch (error) {
       setError("Something went wrong in registering candidate");

@@ -3,6 +3,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
 // import "hardhat/console.sol";
 
@@ -160,8 +161,9 @@ contract DCast {
 
     modifier votingSessionExists(uint256 _votingSessionID) {
         require(
-            votingSessions[_votingSessionID].votingSessionID ==
-                _votingSessionID,
+            (votingSessions[_votingSessionID].votingSessionID ==
+                _votingSessionID &&
+                votingSessions[_votingSessionID].votingSessionID != 0),
             "Voting session does not exist"
         );
         _;
@@ -211,8 +213,21 @@ contract DCast {
 
     modifier voterExists(uint256 _voterID) {
         require(
-            voters[voterAddresses[_voterID - 1]].voterID == _voterID,
+            (voters[voterAddresses[_voterID - 1]].voterID == _voterID &&
+                voters[voterAddresses[_voterID - 1]].voterID != 0),
             "Voter does not exist"
+        );
+        _;
+    }
+
+    modifier voterNotRegistered(uint256 _votingSessionID, uint256 _voterID) {
+        require(
+            !(
+                votingSessions[_votingSessionID]
+                    .votingSessionRoles
+                    .registeredVoters[_voterID]
+            ),
+            "Voter already registered for this voting session"
         );
         _;
     }
@@ -232,20 +247,6 @@ contract DCast {
                 voters[msg.sender].voterID
             ] == true,
             "Caller is not a voter of this voting session"
-        );
-        _;
-    }
-
-    modifier candidateNotExists(
-        uint256 _votingSessionID,
-        uint256 _candidateID
-    ) {
-        require(
-            votingSessions[_votingSessionID]
-                .votingSessionRoles
-                .registeredCandidates[_candidateID]
-                .candidateID != _candidateID,
-            "Candidate already exists"
         );
         _;
     }
@@ -383,6 +384,7 @@ contract DCast {
         votingSessionExists(_votingSessionID)
         voterExists(_voterID)
         votingWeightIsNotZero(_votingWeight)
+        voterNotRegistered(_votingSessionID, _voterID)
     {
         VotingSession storage votingSession = votingSessions[_votingSessionID];
 
@@ -407,10 +409,11 @@ contract DCast {
     function getVotingSessionRegisteredVoterIDs(
         uint256 _votingSessionID
     ) public view returns (uint256[] memory) {
-        return
+        return (
             votingSessions[_votingSessionID]
                 .votingSessionRoles
-                .registeredVoterIDs;
+                .registeredVoterIDs
+        );
     }
 
     function getVoterVotingSessionDetails(
@@ -433,18 +436,7 @@ contract DCast {
         string memory _candidateName,
         string memory _description,
         string memory _candidateImageIPFS_URL
-    )
-        public
-        onlyAdmin
-        votingSessionExists(_votingSessionID)
-        candidateNotExists(
-            _votingSessionID,
-            votingSessions[_votingSessionID]
-                .votingSessionRoles
-                .registeredCandidateCount
-                .current()
-        )
-    {
+    ) public onlyAdmin votingSessionExists(_votingSessionID) {
         VotingSession storage votingSession = votingSessions[_votingSessionID];
         votingSession.votingSessionRoles.registeredCandidateCount.increment();
         uint256 _candidateID = votingSession
@@ -452,7 +444,7 @@ contract DCast {
             .registeredCandidateCount
             .current();
 
-        Candidate memory newCandidate = votingSession
+        Candidate storage newCandidate = votingSession
             .votingSessionRoles
             .registeredCandidates[_candidateID];
 

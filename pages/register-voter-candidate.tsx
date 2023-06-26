@@ -2,8 +2,6 @@ import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "../context/DCast";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import Datepicker from "react-tailwindcss-datepicker";
-import { getUnixTime } from "date-fns";
 import toast from "react-hot-toast";
 
 type RegisterRoles = "VOTER" | "CANDIDATE";
@@ -17,6 +15,9 @@ export default function RegisterVoterCandidatePage() {
     registerVoter,
     registerCandidate,
     getVotingSessionCandidateCount,
+    getVoterCount,
+    getVotingSessionCount,
+    getVotingSessionDetails,
   } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -41,8 +42,8 @@ export default function RegisterVoterCandidatePage() {
   const [voterId, setVoterId] = useState<number>();
   const [votingWeight, setVotingWeight] = useState<number>();
   const [latestCandidateId, setLatestCandidateId] = useState<number>();
-  const [candidateName, setCandidateName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
+  const [candidateName, setCandidateName] = useState<string>();
+  const [description, setDescription] = useState<string>();
   const [fileUrl, setFileUrl] = useState<string>();
   const [registerRoleType, setRegisterRoleType] =
     useState<RegisterRoles>("VOTER");
@@ -56,8 +57,12 @@ export default function RegisterVoterCandidatePage() {
   const { uploadToIPFS } = useContext(DCastContext);
 
   const onDrop = useCallback(async (acceptedFiles: any[]) => {
-    const url = await uploadToIPFS(acceptedFiles[0]);
-    setFileUrl(url);
+    try {
+      const url = await uploadToIPFS(acceptedFiles[0]);
+      setFileUrl(url);
+    } catch (error) {
+      toast.error("Error uploading image");
+    }
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -68,13 +73,42 @@ export default function RegisterVoterCandidatePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const maxVotingSessionId = await getVotingSessionCount();
+    if (
+      (votingSessionId as number) > maxVotingSessionId ||
+      (votingSessionId as number) < 1
+    ) {
+      toast.error(`Voting Session ${votingSessionId} does not exist`);
+      return;
+    }
     if (registerRoleType === "VOTER") {
       try {
+        const maxVoterId = await getVoterCount();
+        if ((voterId as number) > maxVoterId || (voterId as number) < 1) {
+          toast.error(`Voter ${voterId} does not exist`);
+          return;
+        }
+        if ((votingWeight as number) < 1) {
+          toast.error("Voting weight must be more than 0");
+          return;
+        }
+        const votingSessionVoter = (
+          await getVotingSessionDetails(votingSessionId)
+        ).voterDetails[(voterId as number) - 1];
+        if (votingSessionVoter != undefined) {
+          for (const VSID of votingSessionVoter[2]) {
+            if (votingSessionId === VSID.toNumber()) {
+              toast.error(
+                `Voter ${voterId} registered in Voting Session ${votingSessionId}`
+              );
+              return;
+            }
+          }
+        }
         await registerVoter(
-          Number(votingSessionId),
-          Number(voterId),
-          Number(votingWeight)
+          votingSessionId as number,
+          voterId as number,
+          votingWeight as number
         );
         toast.success("Voter registered successfully!");
       } catch (error) {
@@ -84,18 +118,19 @@ export default function RegisterVoterCandidatePage() {
     } else if (registerRoleType === "CANDIDATE") {
       try {
         if (!fileUrl) {
-          alert("Please upload an image of the candidate");
+          toast.error("Please upload an image of the candidate");
           return;
         }
         await registerCandidate(
-          Number(votingSessionId),
-          candidateName,
-          description,
+          votingSessionId as number,
+          candidateName as string,
+          description as string,
           fileUrl
         );
         const newCandidateId = await getVotingSessionCandidateCount(
-          Number(votingSessionId)
+          votingSessionId as number
         );
+        console.log(newCandidateId);
         setLatestCandidateId(newCandidateId);
 
         toast.success("Candidate registered successfully!");
@@ -154,6 +189,7 @@ export default function RegisterVoterCandidatePage() {
                   type="number"
                   id="voting-session-id"
                   value={votingSessionId}
+                  onChange={(e) => setVotingSessionId(parseInt(e.target.value))}
                   className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   placeholder="e.g. 1"
                   required
@@ -172,6 +208,7 @@ export default function RegisterVoterCandidatePage() {
                       type="number"
                       id="voter-id"
                       value={voterId}
+                      onChange={(e) => setVoterId(parseInt(e.target.value))}
                       className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                       placeholder="e.g. 1"
                       required
@@ -188,6 +225,9 @@ export default function RegisterVoterCandidatePage() {
                       type="number"
                       id="voting-weight"
                       value={votingWeight}
+                      onChange={(e) =>
+                        setVotingWeight(parseInt(e.target.value))
+                      }
                       className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                       placeholder="e.g. 1"
                       required
@@ -294,14 +334,16 @@ export default function RegisterVoterCandidatePage() {
             </button>
           </form>
         </div>
-        {latestCandidateId && registerRoleType === "CANDIDATE" && (
+        {latestCandidateId && registerRoleType === "CANDIDATE" ? (
           <div
-            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            className="p-4 mt-6 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
             role="alert"
           >
             <span className="font-medium">Generated Candidate ID:</span>{" "}
             {latestCandidateId}
           </div>
+        ) : (
+          <></>
         )}
       </div>
     </Layout>
