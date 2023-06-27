@@ -100,12 +100,12 @@ export default function RegisterVoterCandidatePage() {
           toast.error("Voting weight must be more than 0");
           return;
         }
-        const votingSessionVoter = (
+        const votingSessionVoters = (
           await getVotingSessionDetails(votingSessionId)
-        ).voterDetails[(voterId as number) - 1];
-        if (votingSessionVoter != undefined) {
-          for (const VSID of votingSessionVoter[2]) {
-            if (votingSessionId === VSID.toNumber()) {
+        ).voterDetails;
+        if (votingSessionVoters != undefined) {
+          for (let i = 0; i < votingSessionVoters.length; i++) {
+            if (votingSessionVoters[i][0].toNumber() === voterId) {
               toast.dismiss(loadingToast);
               toast.error(
                 `Voter ${voterId} registered in Voting Session ${votingSessionId}`
