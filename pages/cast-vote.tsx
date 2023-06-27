@@ -106,7 +106,7 @@ export default function CastVotePage() {
                   id="durian-id"
                   value={durianId}
                   onChange={(e) => setDurianId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="e.g. 1"
                   required
                 />
@@ -124,7 +124,7 @@ export default function CastVotePage() {
                   id="consumer-id"
                   value={consumerId}
                   onChange={(e) => setConsumerId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="e.g. 1"
                   required
                 />
@@ -137,7 +137,7 @@ export default function CastVotePage() {
                   Sold Date
                 </label>
                 <Datepicker
-                  primaryColor="green"
+                  primaryColor="blue"
                   asSingle={true}
                   value={soldDate}
                   onChange={handleSoldDateChange}
@@ -156,7 +156,7 @@ export default function CastVotePage() {
                   id="harvested-time"
                   value={soldTime}
                   onChange={(e) => setSoldTime(e.target.value)}
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   required
                 />
               </div>

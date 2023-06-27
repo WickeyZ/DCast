@@ -119,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="flex border-l border-gray-200">
           <button
             onClick={() => navigator.clipboard.writeText(currentAccount)}
-            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-green-600 hover:text-green-500 focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-blue-600 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Copy
           </button>
@@ -228,7 +228,7 @@ const Layout: React.FC<LayoutProps> = ({
                 <Tooltip message="Click to view address">
                   <span
                     onClick={handleViewAddress}
-                    className="cursor-pointer bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-700 dark:text-green-300"
+                    className="cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-700 dark:text-blue-300"
                   >
                     Guest User (CONNECTED)
                   </span>
@@ -242,7 +242,7 @@ const Layout: React.FC<LayoutProps> = ({
               <Tooltip message="Click to view address">
                 <span
                   onClick={handleViewAddress}
-                  className="cursor-pointer bg-green-100 text-green-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300"
+                  className="cursor-pointer bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"
                 >
                   Connected as{" "}
                   {currentRole.replace(/\w\S*/g, function (txt) {

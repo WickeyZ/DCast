@@ -39,6 +39,7 @@ export default function ViewAccountsPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Loading...");
 
     try {
       const contractOwnerAddress = await getContractOwnerAddress();
@@ -51,8 +52,10 @@ export default function ViewAccountsPage() {
       setVoterDetailsList(voterDetailsList);
 
       setIsLoaded(true);
+      toast.dismiss(loadingToast);
       toast.success("Accounts retrieved successfully!");
     } catch (error) {
+      toast.dismiss(loadingToast);
       toast.error("Error retrieving accounts");
     }
   };

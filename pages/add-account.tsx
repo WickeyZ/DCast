@@ -42,14 +42,17 @@ export default function AddAccountPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    const loadingToast = toast.loading("Loading...");
     if (accountAddress === "") {
+      toast.dismiss(loadingToast);
       toast.error("Please enter an account address");
       return;
     } else if (!/^0x[a-fA-F0-9]{40}$/.test(accountAddress)) {
+      toast.dismiss(loadingToast);
       toast.error("Please enter a valid account address");
       return;
     } else if (accountAddress.toLowerCase() === currentAccount) {
+      toast.dismiss(loadingToast);
       toast.error("You cannot add your own account");
       return;
     } else {
@@ -59,28 +62,37 @@ export default function AddAccountPage() {
             (await checkAccountType(accountAddress)) === "Admin" ||
             (await checkAccountType(accountAddress)) === "Owner"
           ) {
+            toast.dismiss(loadingToast);
             toast.error("This account is already an admin");
             return;
           }
+
           await addAdmin(accountAddress);
+          setLatestVoterId(null);
+          toast.dismiss(loadingToast);
           toast.success("Admin added successfully!");
         } else if (accountType === "VOTER") {
           if ((await checkAccountType(accountAddress)) === "Voter") {
+            toast.dismiss(loadingToast);
             toast.error("This account is already a voter");
             return;
           } else if (
             (await checkAccountType(accountAddress)) === "Admin" ||
             (await checkAccountType(accountAddress)) === "Owner"
           ) {
+            toast.dismiss(loadingToast);
             toast.error("This account is already an admin");
             return;
           }
+
           await addVoter(accountAddress);
           const newVoterId = await getVoterCount();
           setLatestVoterId(newVoterId);
+          toast.dismiss(loadingToast);
           toast.success("Voter added successfully!");
         }
       } catch (error) {
+        toast.dismiss(loadingToast);
         toast.error("Error adding account");
       }
     }
@@ -114,7 +126,7 @@ export default function AddAccountPage() {
                   </label>
                   <select
                     id="account-type"
-                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                     placeholder="Admin/Voter"
                     value={accountType}
                     onChange={handleAccountTypeChange}
@@ -136,7 +148,7 @@ export default function AddAccountPage() {
                     id="account-address"
                     value={accountAddress}
                     onChange={(e) => setAccountAddress(e.target.value)}
-                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                    className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                     placeholder="e.g. 0x71C7656EC7ab88b098defB751B7401B5f6d8976F"
                     required
                   />

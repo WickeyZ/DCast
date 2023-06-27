@@ -57,10 +57,14 @@ export default function RegisterVoterCandidatePage() {
   const { uploadToIPFS } = useContext(DCastContext);
 
   const onDrop = useCallback(async (acceptedFiles: any[]) => {
+    const uploadingToast = toast.loading("Uploading...");
     try {
       const url = await uploadToIPFS(acceptedFiles[0]);
       setFileUrl(url);
+      toast.dismiss(uploadingToast);
+      toast.success("Image uploaded");
     } catch (error) {
+      toast.dismiss(uploadingToast);
       toast.error("Error uploading image");
     }
   }, []);
@@ -73,11 +77,13 @@ export default function RegisterVoterCandidatePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Loading...");
     const maxVotingSessionId = await getVotingSessionCount();
     if (
       (votingSessionId as number) > maxVotingSessionId ||
       (votingSessionId as number) < 1
     ) {
+      toast.dismiss(loadingToast);
       toast.error(`Voting Session ${votingSessionId} does not exist`);
       return;
     }
@@ -85,10 +91,12 @@ export default function RegisterVoterCandidatePage() {
       try {
         const maxVoterId = await getVoterCount();
         if ((voterId as number) > maxVoterId || (voterId as number) < 1) {
+          toast.dismiss(loadingToast);
           toast.error(`Voter ${voterId} does not exist`);
           return;
         }
         if ((votingWeight as number) < 1) {
+          toast.dismiss(loadingToast);
           toast.error("Voting weight must be more than 0");
           return;
         }
@@ -98,6 +106,7 @@ export default function RegisterVoterCandidatePage() {
         if (votingSessionVoter != undefined) {
           for (const VSID of votingSessionVoter[2]) {
             if (votingSessionId === VSID.toNumber()) {
+              toast.dismiss(loadingToast);
               toast.error(
                 `Voter ${voterId} registered in Voting Session ${votingSessionId}`
               );
@@ -105,19 +114,23 @@ export default function RegisterVoterCandidatePage() {
             }
           }
         }
+
         await registerVoter(
           votingSessionId as number,
           voterId as number,
           votingWeight as number
         );
+        toast.dismiss(loadingToast);
         toast.success("Voter registered successfully!");
       } catch (error) {
+        toast.dismiss(loadingToast);
         toast.error("Error registering voter");
         console.log(error);
       }
     } else if (registerRoleType === "CANDIDATE") {
       try {
         if (!fileUrl) {
+          toast.dismiss(loadingToast);
           toast.error("Please upload an image of the candidate");
           return;
         }
@@ -132,9 +145,10 @@ export default function RegisterVoterCandidatePage() {
         );
         console.log(newCandidateId);
         setLatestCandidateId(newCandidateId);
-
+        toast.dismiss(loadingToast);
         toast.success("Candidate registered successfully!");
       } catch (error) {
+        toast.dismiss(loadingToast);
         toast.error("Error registering candidate");
         console.log(error);
       }
@@ -168,7 +182,7 @@ export default function RegisterVoterCandidatePage() {
                 </label>
                 <select
                   id="register-role"
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="Voter/Candidate"
                   value={registerRoleType}
                   onChange={handleRegisterRoleChange}
@@ -190,7 +204,7 @@ export default function RegisterVoterCandidatePage() {
                   id="voting-session-id"
                   value={votingSessionId}
                   onChange={(e) => setVotingSessionId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="e.g. 1"
                   required
                 />
@@ -209,7 +223,7 @@ export default function RegisterVoterCandidatePage() {
                       id="voter-id"
                       value={voterId}
                       onChange={(e) => setVoterId(parseInt(e.target.value))}
-                      className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                      className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                       placeholder="e.g. 1"
                       required
                     />
@@ -228,7 +242,7 @@ export default function RegisterVoterCandidatePage() {
                       onChange={(e) =>
                         setVotingWeight(parseInt(e.target.value))
                       }
-                      className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                      className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                       placeholder="e.g. 1"
                       required
                     />
@@ -248,7 +262,7 @@ export default function RegisterVoterCandidatePage() {
                       id="candidate-name"
                       value={candidateName}
                       onChange={(e) => setCandidateName(e.target.value)}
-                      className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                      className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                       placeholder="e.g. Chicken Burger"
                       required
                     />
@@ -265,12 +279,12 @@ export default function RegisterVoterCandidatePage() {
                       id="description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                      className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                       placeholder="e.g. chicken patty, perfectly seasoned"
                       required
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div className="md:col-span-2">
                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                       Candidate Image
                     </label>

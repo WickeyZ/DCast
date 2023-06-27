@@ -38,8 +38,10 @@ export default function AddVotingSessionPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Loading...");
 
     if (votingSessionName === "") {
+      toast.dismiss(loadingToast);
       toast.error("Please enter a voting session name");
       return;
     } else {
@@ -47,8 +49,10 @@ export default function AddVotingSessionPage() {
         await addVotingSession(votingSessionName);
         const newVotingSessionId = await getVotingSessionCount();
         setLatestVotingSessionId(newVotingSessionId);
+        toast.dismiss(loadingToast);
         toast.success("Voting Session added successfully!");
       } catch (error) {
+        toast.dismiss(loadingToast);
         toast.error("Error adding voting session");
         console.log(error);
       }
@@ -85,7 +89,7 @@ export default function AddVotingSessionPage() {
                   id="voting-session-name"
                   value={votingSessionName}
                   onChange={(e) => setVotingSessionName(e.target.value)}
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="e.g. Lunch Idea"
                   required
                 />
