@@ -107,8 +107,8 @@ export default function CheckVotingSessionPage() {
 
         {votingSessionDetails !== null && (
           <>
-            <div className="overflow-hidden rounded-lg border shadow mt-8 text-sm font-medium mr-8">
-              <table className=" w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
+              <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                 <colgroup>
                   <col style={{ width: "35%" }} />
                   <col style={{ width: "65%" }} />
@@ -238,7 +238,90 @@ export default function CheckVotingSessionPage() {
               Candidate Details
             </h2>
             {votingSessionDetails.candidateDetails.length > 0 ? (
-              <></>
+              <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
+                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                  <colgroup>
+                    <col style={{ width: "12%" }} />
+                    <col style={{ width: "20%" }} />
+                    <col style={{ width: "33%" }} />
+                    <col style={{ width: "15%" }} />
+                    <col style={{ width: "20%" }} />
+                  </colgroup>
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        CANDIDATE ID
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        NAME
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        DESCRIPTION
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        VOTE COUNT
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        STATUS
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {votingSessionDetails.candidateDetails.map(
+                      (candidateData: any, index: any) => (
+                        <tr
+                          key={`${index}-voter`}
+                          className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                        >
+                          <td className="px-6 py-4">
+                            {candidateData[0].toNumber()}
+                          </td>
+                          <td className="px-4 py-4 flex items-center gap-4 capitalize font-bold text-gray-900">
+                            <img
+                              src={candidateData[3]}
+                              alt="candidate image"
+                              className="w-14 h-14 rounded-full object-contain"
+                            />
+                            {candidateData[1]}
+                          </td>
+                          <td className="px-6 py-4">{candidateData[2]}</td>
+                          <td className="px-6 py-4">
+                            {candidateData[4].toNumber()}
+                          </td>
+                          <td className="px-6 py-4">
+                            {(() => {
+                              if (votingSessionDetails.details[2] === 2) {
+                                for (const winnerId of votingSessionDetails.winnerCandidateIds) {
+                                  if (
+                                    candidateData[0].toNumber() ===
+                                    winnerId.toNumber()
+                                  ) {
+                                    return (
+                                      <span className="bg-green-100 text-green-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                        Won
+                                      </span>
+                                    );
+                                  }
+                                }
+                                return (
+                                  <span className="bg-red-100 text-red-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">
+                                    Lose
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span className="bg-gray-100 text-gray-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-gray-900 dark:text-gray-300">
+                                  -
+                                </span>
+                              );
+                            })()}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
             ) : (
               <div className="mb-3 text-gray-500 dark:text-gray-400">
                 There are no candidates registered.
@@ -249,7 +332,67 @@ export default function CheckVotingSessionPage() {
               Voter Details
             </h2>
             {votingSessionDetails.voterDetails.length > 0 ? (
-              <></>
+              <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
+                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        VOTER ID
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        ACCOUNT ADDRESS
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        WEIGHT
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        VOTED CANDIDATE ID
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {votingSessionDetails.voterDetails.map(
+                      (voterData: any, index: any) => (
+                        <tr
+                          key={`${index}-voter`}
+                          className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                        >
+                          <td className="px-6 py-4">
+                            {voterData[0].toNumber()}
+                          </td>
+                          <td className="px-6 py-4">{voterData[1]}</td>
+                          {
+                            <>
+                              <td className="px-6 py-4">
+                                {votingSessionDetails.voterVSDetails[index][0]}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span
+                                  className={`${
+                                    votingSessionDetails.voterVSDetails[
+                                      index
+                                    ][1].toNumber() === 0
+                                      ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                      : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                  } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
+                                >
+                                  {votingSessionDetails.voterVSDetails[
+                                    index
+                                  ][1].toNumber() === 0
+                                    ? "No Vote"
+                                    : `Voted: ${votingSessionDetails.voterVSDetails[
+                                        index
+                                      ][1].toNumber()}`}
+                                </span>
+                              </td>
+                            </>
+                          }
+                        </tr>
+                      )
+                    )}
+                  </tbody>
+                </table>
+              </div>
             ) : (
               <div className="mb-3 text-gray-500 dark:text-gray-400">
                 There are no voter accounts registered.
