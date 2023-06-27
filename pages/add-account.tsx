@@ -153,7 +153,7 @@ export default function AddAccountPage() {
         </div>
         {latestVoterId !== null && (
           <div
-            className="p-4 mt-6 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+            className="p-4 mt-6 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
             role="alert"
           >
             <span className="font-medium">Generated Voter ID:</span>{" "}
