@@ -105,6 +105,158 @@ export default function CheckVotingSessionPage() {
           </form>
         </div>
 
+        {votingSessionDetails !== null && (
+          <>
+            <div className="overflow-hidden rounded-lg border shadow mt-8 text-sm font-medium mr-8">
+              <table className=" w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <colgroup>
+                  <col style={{ width: "35%" }} />
+                  <col style={{ width: "65%" }} />
+                </colgroup>
+                <thead className=" text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                  <tr>
+                    <th scope="col" colSpan={2} className="px-6 py-3">
+                      Session Details
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Session ID
+                    </th>
+                    <td className="px-6 py-4">
+                      {votingSessionDetails.details[0].toNumber()}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Name
+                    </th>
+                    <td className="px-6 py-4">
+                      {votingSessionDetails.details[1]}
+                    </td>
+                  </tr>
+                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Phase
+                    </th>
+                    <td className="px-6 py-4">
+                      <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                        {votingSessionDetails.details[2] === 0
+                          ? "Registration"
+                          : votingSessionDetails.details[2] === 1
+                          ? "Voting"
+                          : "Close"}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr
+                    className={`bg-white ${
+                      votingSessionDetails.details[2] === 0 ? "" : "border-b"
+                    } dark:bg-gray-800 dark:border-gray-700`}
+                  >
+                    <th
+                      scope="row"
+                      className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                    >
+                      Registration Date & Time
+                    </th>
+                    <td className="px-6 py-4">
+                      {`${new Date(
+                        votingSessionDetails.details[3].toNumber() * 1000
+                      ).toLocaleDateString()} ${new Date(
+                        votingSessionDetails.details[3].toNumber() * 1000
+                      ).toLocaleTimeString("en-US", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}`}
+                    </td>
+                  </tr>
+                  {(votingSessionDetails.details[2] === 1 ||
+                    votingSessionDetails.details[2] === 2) && (
+                    <tr
+                      className={`bg-white ${
+                        votingSessionDetails.details[2] === 2 ? "border-b" : ""
+                      } dark:bg-gray-800 dark:border-gray-700`}
+                    >
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        Voting Date & Time
+                      </th>
+                      <td className="px-6 py-4">
+                        {`${new Date(
+                          votingSessionDetails.details[4].toNumber() * 1000
+                        ).toLocaleDateString()} ${new Date(
+                          votingSessionDetails.details[4].toNumber() * 1000
+                        ).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}`}
+                      </td>
+                    </tr>
+                  )}
+                  {votingSessionDetails.details[2] === 2 && (
+                    <tr className="bg-white dark:bg-gray-800 dark:border-gray-700">
+                      <th
+                        scope="row"
+                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                      >
+                        Close Date & Time
+                      </th>
+                      <td className="px-6 py-4">
+                        {`${new Date(
+                          votingSessionDetails.details[5].toNumber() * 1000
+                        ).toLocaleDateString()} ${new Date(
+                          votingSessionDetails.details[5].toNumber() * 1000
+                        ).toLocaleTimeString("en-US", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: true,
+                        })}`}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
+              Candidate Details
+            </h2>
+            {votingSessionDetails.candidateDetails.length > 0 ? (
+              <></>
+            ) : (
+              <div className="mb-3 text-gray-500 dark:text-gray-400">
+                There are no candidates registered.
+              </div>
+            )}
+
+            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
+              Voter Details
+            </h2>
+            {votingSessionDetails.voterDetails.length > 0 ? (
+              <></>
+            ) : (
+              <div className="mb-3 text-gray-500 dark:text-gray-400">
+                There are no voter accounts registered.
+              </div>
+            )}
+          </>
+        )}
         {/* {votingSessionDetails !== null &&
           votingSessionDetails?.details[2] === 0 && (
             <>
