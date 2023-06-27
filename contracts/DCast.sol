@@ -553,9 +553,9 @@ contract DCast {
     function updateToClosePhase(
         uint256 _votingSessionID
     ) internal onlyAdmin votingPhaseIsVoting(_votingSessionID) {
+        computeWinnerCandidateIDs(_votingSessionID);
         votingSessions[_votingSessionID].phase = VotingPhase.Close;
         votingSessions[_votingSessionID].closeTime = block.timestamp;
-        computeWinnerCandidateIDs(_votingSessionID);
     }
 
     function computeWinnerCandidateIDs(

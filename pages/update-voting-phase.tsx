@@ -1,8 +1,6 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "../context/DCast";
 import { useContext, useEffect, useState } from "react";
-import Datepicker from "react-tailwindcss-datepicker";
-import { getUnixTime } from "date-fns";
 import { VotingPhase } from "@/types";
 import toast from "react-hot-toast";
 
@@ -12,7 +10,9 @@ export default function UpdateVotingPhasePage() {
     currentAccount,
     checkIfWalletIsConnected,
     checkAccountType,
-    sellDurian,
+    updateVotingSessionPhase,
+    getVotingSessionDetails,
+    getVotingSessionCount,
   } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null>(null);
 
@@ -33,46 +33,110 @@ export default function UpdateVotingPhasePage() {
   console.log("role", role);
   // ---------------------------------------------------------------------//
 
-  const [durianId, setDurianId] = useState<number>();
-  const [consumerId, setConsumerId] = useState<number>();
-  const [soldDate, setSoldDate] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
-  });
-  const [soldTime, setSoldTime] = useState(
-    `${String(new Date().getHours()).padStart(2, "0")}:${String(
-      new Date().getMinutes()
-    ).padStart(2, "0")}`
-  );
+  const [votingSessionId, setVotingSessionId] = useState<number>();
+  const [latestPhase, setLatestPhase] = useState<VotingPhase>();
+  const [currentPhaseString, setCurrentPhaseString] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
-  const handleSoldDateChange = (date: any) => {
-    console.log("arrivalDate: ", date);
-    setSoldDate(date);
+  const checkCurrentPhaseString = async (currentPhase: number) => {
+    switch (currentPhase) {
+      case 0:
+        setCurrentPhaseString("Registration");
+        return "Registration";
+      case 1:
+        setCurrentPhaseString("Voting");
+        return "Voting";
+      case 2:
+        setCurrentPhaseString("Close");
+        return "Close";
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log("Form submission date", {
-      durianId,
-      consumerId,
-    });
-
-    const combinedDate = new Date(
-      new Date(soldDate.startDate).getFullYear(),
-      new Date(soldDate.startDate).getMonth(),
-      new Date(soldDate.startDate).getDate(),
-      parseInt(soldTime.split(":")[0], 10),
-      parseInt(soldTime.split(":")[1], 10)
-    );
-
-    const unixSoldTime = getUnixTime(combinedDate);
-
+  const handleSubmit = async (buttonClicked: string) => {
+    let loadingToast;
+    if (!isNaN(votingSessionId as number)) {
+      loadingToast = toast.loading("Loading...");
+    } else {
+      return;
+    }
     try {
-      await sellDurian(durianId as number, consumerId as number, unixSoldTime);
-      toast.success("Durian sold successfully!");
+      const maxVotingSessionId = await getVotingSessionCount();
+      if (
+        (votingSessionId as number) > maxVotingSessionId ||
+        (votingSessionId as number) < 1
+      ) {
+        //! votingSessionExists
+        setErrorMessage(
+          `Voting Session with ID ${votingSessionId} does not exist.`
+        );
+        toast.dismiss(loadingToast);
+        toast.error(`Voting Session ${votingSessionId} does not exist`);
+        return;
+      }
+
+      const currentPhase = (
+        await getVotingSessionDetails(votingSessionId as number)
+      ).details[2];
+
+      if (buttonClicked === "checkPhase") {
+        const phaseString = await checkCurrentPhaseString(currentPhase);
+        setErrorMessage("");
+        toast.dismiss(loadingToast);
+        toast.success(`Current phase is '${phaseString}'`);
+      }
+
+      if (buttonClicked === "updatePhase") {
+        if (currentPhase === 2) {
+          //! votingPhaseIsNotClose
+          setErrorMessage("Voting Phase is already 'Close'");
+          toast.dismiss(loadingToast);
+          toast.error("Phase is already 'Close'");
+          return;
+        }
+
+        if (currentPhase === 0) {
+          //! atLeast1CandidateAnd1VoterRegistered
+          const votingSessionVoterLength = (
+            await getVotingSessionDetails(votingSessionId)
+          ).voterDetails.length;
+          const votingSessionCandidateLength = (
+            await getVotingSessionDetails(votingSessionId)
+          ).candidateDetails.length;
+          if (votingSessionCandidateLength === 0) {
+            setErrorMessage(`At least 1 candidate should be registered.`);
+            toast.dismiss(loadingToast);
+            toast.error(`Not enough candidate registered`);
+            return;
+          }
+          if (votingSessionVoterLength === 0) {
+            setErrorMessage(`At least 1 voter should be registered.`);
+            toast.dismiss(loadingToast);
+            toast.error(`Not enough voter registered`);
+            return;
+          }
+        }
+
+        await updateVotingSessionPhase(votingSessionId as number);
+        setErrorMessage("");
+        const updatedPhase = (
+          await getVotingSessionDetails(votingSessionId as number)
+        ).details[2];
+        const phaseString = await checkCurrentPhaseString(updatedPhase);
+        toast.dismiss(loadingToast);
+        toast.success(`Phase updated to '${phaseString}'`);
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Error selling durian");
+      if (votingSessionId === undefined) {
+        return;
+      }
+      if (buttonClicked === "updatePhase") {
+        toast.dismiss(loadingToast);
+        toast.error("Error updating voting phase");
+      } else {
+        toast.dismiss(loadingToast);
+        toast.error("Error checking voting phase");
+      }
       return;
     }
   };
@@ -93,84 +157,61 @@ export default function UpdateVotingPhasePage() {
           {pages["/update-voting-phase"].title}
         </h1>
         <div>
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
             <div className="grid gap-6 mb-6 md:grid-cols-2">
               <div>
                 <label
-                  htmlFor="durian-id"
+                  htmlFor="voting-session-id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Durian ID
+                  Voting Session ID
                 </label>
                 <input
                   type="number"
+                  value={votingSessionId}
+                  onChange={(e) => setVotingSessionId(parseInt(e.target.value))}
                   id="durian-id"
-                  value={durianId}
-                  onChange={(e) => setDurianId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
+                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
                   placeholder="e.g. 1"
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="consumer-id"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Consumer ID
-                </label>
-                <input
-                  type="number"
-                  id="consumer-id"
-                  value={consumerId}
-                  onChange={(e) => setConsumerId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
-                  placeholder="e.g. 1"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="sold-date"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Sold Date
-                </label>
-                <Datepicker
-                  primaryColor="green"
-                  asSingle={true}
-                  value={soldDate}
-                  onChange={handleSoldDateChange}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="sold-time"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Sold Time
-                </label>
-                <input
-                  type="time"
-                  id="harvested-time"
-                  value={soldTime}
-                  onChange={(e) => setSoldTime(e.target.value)}
-                  className="relative transition-all duration-300 py-2.5 px-4 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-green-500 focus:ring-green-500/20"
                   required
                 />
               </div>
             </div>
-
             <button
               type="submit"
+              onClick={() => handleSubmit("checkPhase")}
+              className="text-primary rounded-lg bg-white border-primary rounded border focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:focus:ring-blue-800 mb-4 mr-4 "
+            >
+              Check Phase
+            </button>
+            <button
+              type="submit"
+              onClick={() => handleSubmit("updatePhase")}
               className="text-white rounded-lg bg-primary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:focus:ring-blue-800"
             >
-              Sell Durian
+              Update Phase
             </button>
           </form>
         </div>
+
+        {errorMessage === "" && currentPhaseString !== "" && (
+          <div className="mt-8 text-sm text-left text-gray-900 dark:text-gray-400 flex items-center">
+            <p className="mr-2">Current Phase:</p>
+            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {currentPhaseString}
+            </span>
+          </div>
+        )}
+
+        {errorMessage !== "" && (
+          <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+            <p className="text-red-500">{errorMessage}</p>
+          </div>
+        )}
       </div>
     </Layout>
   );
