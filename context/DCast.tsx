@@ -78,6 +78,14 @@ interface DCastData {
 
   //update-voting-phase
   updateVotingSessionPhase: (votingSessionID: number) => Promise<void>;
+
+  //cast-vote
+  castVote: (
+    votingSessionID: number,
+    voterID: number,
+    candidateID: number
+  ) => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getFarmDataList: () => Promise<any>;
@@ -171,6 +179,7 @@ const defaultValue = {
   registerCandidate: () => {},
   getVotingSessionCandidateCount: () => {},
   updateVotingSessionPhase: () => {},
+  castVote: () => {},
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
   getFarmDataList: () => {},
@@ -537,6 +546,27 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       );
       await updatePhase.wait();
       console.log(updatePhase);
+    } catch (error) {
+      setError("Something went wrong in updating voting phase");
+      throw error;
+    }
+  };
+
+  const castVote = async (
+    votingSessionID: number,
+    voterID: number,
+    candidateID: number
+  ) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voteCasted = await contract.castVote(
+        votingSessionID,
+        voterID,
+        candidateID
+      );
+      await voteCasted.wait();
+      console.log(voteCasted);
     } catch (error) {
       setError("Something went wrong in updating voting phase");
       throw error;
@@ -1107,6 +1137,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         registerCandidate,
         getVotingSessionCandidateCount,
         updateVotingSessionPhase,
+        castVote,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,
