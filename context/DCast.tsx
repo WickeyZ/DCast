@@ -86,6 +86,8 @@ interface DCastData {
     candidateID: number
   ) => Promise<any>;
 
+  getVoterID: (voterAddress: string) => Promise<any>;
+
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
   getFarmDataList: () => Promise<any>;
@@ -180,6 +182,7 @@ const defaultValue = {
   getVotingSessionCandidateCount: () => {},
   updateVotingSessionPhase: () => {},
   castVote: () => {},
+  getVoterID: () => {},
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
   getFarmDataList: () => {},
@@ -570,6 +573,20 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     } catch (error) {
       setError("Something went wrong in updating voting phase");
       throw error;
+    }
+  };
+
+  const getVoterID = async (voterAddress: string) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterDetails = await contract.getFarmData(voterAddress);
+
+      console.log("Voter Details");
+      console.log(voterDetails);
+      return voterDetails[0];
+    } catch (error) {
+      setError("Something went wrong in getting farm ID");
     }
   };
 
@@ -1138,6 +1155,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         getVotingSessionCandidateCount,
         updateVotingSessionPhase,
         castVote,
+        getVoterID,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,
