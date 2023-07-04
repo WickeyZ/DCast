@@ -83,8 +83,11 @@ export default function AddAccountPage() {
             toast.dismiss(loadingToast);
             toast.error("This account is already an admin");
             return;
+          } else if ((await checkAccountType(accountAddress)) === "Voter") {
+            toast.dismiss(loadingToast);
+            toast.error("This account is already a voter");
+            return;
           }
-
           await addAdmin(accountAddress);
           setLatestVoterId(null);
           toast.dismiss(loadingToast);
