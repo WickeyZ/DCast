@@ -266,7 +266,7 @@ contract DCast {
         require(
             voters[msg.sender]
                 .voterSessionDetails[_votingSessionID]
-                .votedCandidateID != 0,
+                .votedCandidateID == 0,
             "Voter has already voted in this voting session"
         );
         _;

@@ -73,6 +73,18 @@ export default function CastVotePage() {
       }
 
       //! votingPhaseIsVoting(_votingSessionID)
+      const currentPhase = (
+        await getVotingSessionDetails(votingSessionId as number)
+      ).details[2];
+      console.log(currentPhase);
+      if (currentPhase !== 1) {
+        setErrorMessage(
+          `Voting Session ${votingSessionId} phase is not Voting`
+        );
+        toast.dismiss(loadingToast);
+        toast.error(`Voting Session ${votingSessionId} phase is not Voting`);
+        return;
+      }
 
       //! onlyVotingSessionVoter(_votingSessionID)
       const votingSessionVoters = (
@@ -101,6 +113,16 @@ export default function CastVotePage() {
       }
 
       //! voterNotVoted(_votingSessionID)
+      const voterVoted = (
+        await getVotingSessionDetails(votingSessionId)
+      ).voterVSDetails[(voterId as number) - 1][1].toNumber();
+
+      if (voterVoted) {
+        setErrorMessage(`You had already voted before`);
+        toast.dismiss(loadingToast);
+        toast.error(`You had already voted before`);
+        return;
+      }
 
       //! candidateExists(_votingSessionID, _candidateID)
       const votingSessionCandidates = (
