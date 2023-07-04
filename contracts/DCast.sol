@@ -237,15 +237,15 @@ contract DCast {
         _;
     }
 
-    modifier onlyVotingSessionVoter(uint256 votingSessionID) {
+    modifier onlyVotingSessionVoter(uint256 _votingSessionID) {
         require(
             voters[msg.sender].voterAddress == msg.sender,
             "Caller is not a voter"
         );
         require(
-            votingSessions[votingSessionID].votingSessionRoles.registeredVoters[
-                voters[msg.sender].voterID
-            ] == true,
+            votingSessions[_votingSessionID]
+                .votingSessionRoles
+                .registeredVoters[voters[msg.sender].voterID] == true,
             "Caller is not a voter of this voting session"
         );
         _;
@@ -258,6 +258,16 @@ contract DCast {
                 .registeredCandidates[_candidateID]
                 .candidateID == _candidateID,
             "Candidate does not exist"
+        );
+        _;
+    }
+
+    modifier voterNotVoted(uint256 _votingSessionID) {
+        require(
+            voters[msg.sender]
+                .voterSessionDetails[_votingSessionID]
+                .votedCandidateID != 0,
+            "Voter has already voted in this voting session"
         );
         _;
     }
@@ -610,8 +620,10 @@ contract DCast {
         uint256 _candidateID
     )
         public
-        onlyVotingSessionVoter(_votingSessionID)
         votingSessionExists(_votingSessionID)
+        votingPhaseIsVoting(_votingSessionID)
+        onlyVotingSessionVoter(_votingSessionID)
+        voterNotVoted(_votingSessionID)
         candidateExists(_votingSessionID, _candidateID)
     {
         VotingSession storage votingSession = votingSessions[_votingSessionID];

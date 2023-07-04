@@ -55,6 +55,8 @@ export default function CastVotePage() {
         return;
       }
 
+      //! votingPhaseIsVoting(_votingSessionID)
+
       //! onlyVotingSessionVoter(_votingSessionID)
       const votingSessionVoters = (
         await getVotingSessionDetails(votingSessionId)
@@ -81,6 +83,8 @@ export default function CastVotePage() {
         return;
       }
 
+      //! voterNotVoted(_votingSessionID)
+
       //! candidateExists(_votingSessionID, _candidateID)
       const votingSessionCandidates = (
         await getVotingSessionDetails(votingSessionId)
@@ -100,7 +104,7 @@ export default function CastVotePage() {
       let candidateInSession = false;
 
       for (let i = 0; i < votingSessionCandidates.length; i++) {
-        if (votingSessionCandidates[i][0].toNumber() === voterId) {
+        if (votingSessionCandidates[i][0].toNumber() === candidateId) {
           candidateInSession = true;
         }
       }
@@ -160,40 +164,44 @@ export default function CastVotePage() {
         <div>
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6 mb-6 md:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="voting-session-id"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Voting Session ID
-                </label>
-                <input
-                  type="number"
-                  id="voting-session-id"
-                  value={votingSessionId}
-                  onChange={(e) => setVotingSessionId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
-                  placeholder="e.g. 1"
-                  required
-                />
-              </div>
+              <div className="col-span-1 grid gap-6">
+                <div>
+                  <label
+                    htmlFor="voting-session-id"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Voting Session ID
+                  </label>
+                  <input
+                    type="number"
+                    id="voting-session-id"
+                    value={votingSessionId}
+                    onChange={(e) =>
+                      setVotingSessionId(parseInt(e.target.value))
+                    }
+                    className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
+                    placeholder="e.g. 1"
+                    required
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="candidate-id"
-                  className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Candidate ID
-                </label>
-                <input
-                  type="number"
-                  id="candidate-id"
-                  value={candidateId}
-                  onChange={(e) => setCandidateId(parseInt(e.target.value))}
-                  className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
-                  placeholder="e.g. 1"
-                  required
-                />
+                <div>
+                  <label
+                    htmlFor="candidate-id"
+                    className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Candidate ID
+                  </label>
+                  <input
+                    type="number"
+                    id="candidate-id"
+                    value={candidateId}
+                    onChange={(e) => setCandidateId(parseInt(e.target.value))}
+                    className="relative transition-all duration-300 py-2.5 pl-4 pr-14 w-full border-gray-300 dark:bg-slate-800 dark:text-white/80 dark:border-slate-600 rounded-lg tracking-wide font-light text-sm placeholder-gray-400 bg-white focus:ring disabled:opacity-40 disabled:cursor-not-allowed focus:border-blue-500 focus:ring-blue-500/20"
+                    placeholder="e.g. 1"
+                    required
+                  />
+                </div>
               </div>
             </div>
 
