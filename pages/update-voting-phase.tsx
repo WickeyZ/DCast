@@ -3,6 +3,7 @@ import { DCastContext } from "../context/DCast";
 import { useContext, useEffect, useState } from "react";
 import { VotingPhase } from "@/types";
 import toast from "react-hot-toast";
+import router from "next/router";
 
 export default function UpdateVotingPhasePage() {
   // ---------------------------------------------------------------------//
@@ -29,6 +30,21 @@ export default function UpdateVotingPhasePage() {
       setRole(null);
     }
   }, [currentAccount]);
+
+  useEffect(() => {
+    const currentRole =
+      role !== null
+        ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
+            ? "admin"
+            : role.toLowerCase()) as roles)
+        : "guest";
+    //Restrict users from accessing unaccessible pages with their roles
+    if (role !== null && currentRole != pages["/update-voting-phase"].access) {
+      router.push("/");
+    } else if (role === null) {
+      router.push("/");
+    }
+  }, [role]);
 
   console.log("role", role);
   // ---------------------------------------------------------------------//

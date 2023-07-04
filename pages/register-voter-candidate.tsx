@@ -3,6 +3,7 @@ import { DCastContext } from "../context/DCast";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
+import router from "next/router";
 
 type RegisterRoles = "VOTER" | "CANDIDATE";
 
@@ -34,6 +35,24 @@ export default function RegisterVoterCandidatePage() {
       setRole(null);
     }
   }, [currentAccount]);
+
+  useEffect(() => {
+    const currentRole =
+      role !== null
+        ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
+            ? "admin"
+            : role.toLowerCase()) as roles)
+        : "guest";
+    //Restrict users from accessing unaccessible pages with their roles
+    if (
+      role !== null &&
+      currentRole != pages["/register-voter-candidate"].access
+    ) {
+      router.push("/");
+    } else if (role === null) {
+      router.push("/");
+    }
+  }, [role]);
 
   console.log("role", role);
   // ---------------------------------------------------------------------//

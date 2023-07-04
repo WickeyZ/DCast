@@ -1,5 +1,6 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "@/context/DCast";
+import router from "next/router";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -30,6 +31,22 @@ export default function AddAccountPage() {
       setRole(null);
     }
   }, [currentAccount]);
+
+  useEffect(() => {
+    const currentRole =
+      role !== null
+        ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
+            ? "admin"
+            : role.toLowerCase()) as roles)
+        : "guest";
+    //Restrict users from accessing unaccessible pages with their roles
+    if (role !== null && currentRole != pages["/add-account"].access) {
+      router.push("/");
+    } else if (role === null) {
+      router.push("/");
+    }
+  }, [role]);
+
   // ---------------------------------------------------------------------//
 
   const [accountAddress, setAccountAddress] = useState("");

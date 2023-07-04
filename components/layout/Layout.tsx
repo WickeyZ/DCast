@@ -160,10 +160,6 @@ const Layout: React.FC<LayoutProps> = ({
     };
   }, []);
 
-  if (currentPage !== "/" || currentRole !== pages[currentPage].access) {
-    router.push("/");
-  }
-
   return (
     <>
       <button

@@ -2,6 +2,7 @@ import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "../context/DCast";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import router from "next/router";
 
 export default function CastVotePage() {
   // ---------------------------------------------------------------------//
@@ -29,6 +30,21 @@ export default function CastVotePage() {
       setRole(null);
     }
   }, [currentAccount]);
+
+  useEffect(() => {
+    const currentRole =
+      role !== null
+        ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
+            ? "admin"
+            : role.toLowerCase()) as roles)
+        : "guest";
+    //Restrict users from accessing unaccessible pages with their roles
+    if (role !== null && currentRole != pages["/cast-vote"].access) {
+      router.push("/");
+    } else if (role === null) {
+      router.push("/");
+    }
+  }, [role]);
 
   console.log("role", role);
   // ---------------------------------------------------------------------//
