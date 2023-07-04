@@ -36,6 +36,7 @@ export default function CastVotePage() {
   const [votingSessionId, setVotingSessionId] = useState<number>();
   const [candidateId, setCandidateId] = useState<number>();
   const [voterId, setVoterId] = useState<number>();
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -48,6 +49,7 @@ export default function CastVotePage() {
         (votingSessionId as number) > maxVotingSessionId ||
         (votingSessionId as number) < 1
       ) {
+        setErrorMessage(`Voting Session ${votingSessionId} does not exist`);
         toast.dismiss(loadingToast);
         toast.error(`Voting Session ${votingSessionId} does not exist`);
         return;
@@ -59,10 +61,9 @@ export default function CastVotePage() {
       ).voterDetails;
 
       if (votingSessionVoters === undefined) {
+        setErrorMessage(`You're not in Voting Session ${votingSessionId}`);
         toast.dismiss(loadingToast);
-        toast.error(
-          `You're not registered in Voting Session ${votingSessionId}`
-        );
+        toast.error(`You're not in Voting Session ${votingSessionId}`);
         return;
       }
 
@@ -74,10 +75,9 @@ export default function CastVotePage() {
       }
 
       if (!voterInSession) {
+        setErrorMessage(`You're not in Voting Session ${votingSessionId}`);
         toast.dismiss(loadingToast);
-        toast.error(
-          `You're not registered in Voting Session ${votingSessionId}`
-        );
+        toast.error(`You're not in Voting Session ${votingSessionId}`);
         return;
       }
 
@@ -87,9 +87,12 @@ export default function CastVotePage() {
       ).candidateDetails;
 
       if (votingSessionCandidates === undefined) {
+        setErrorMessage(
+          `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
+        );
         toast.dismiss(loadingToast);
         toast.error(
-          `Candidate ${candidateId} is not registered in Voting Session ${votingSessionId}`
+          `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
         );
         return;
       }
@@ -103,9 +106,12 @@ export default function CastVotePage() {
       }
 
       if (!candidateInSession) {
+        setErrorMessage(
+          `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
+        );
         toast.dismiss(loadingToast);
         toast.error(
-          `Candidate ${candidateId} is not registered in Voting Session ${votingSessionId}`
+          `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
         );
         return;
       }
@@ -117,6 +123,7 @@ export default function CastVotePage() {
         voterId as number,
         candidateId as number
       );
+      setErrorMessage("");
       toast.dismiss(loadingToast);
       toast.success("Vote casted successfully!");
     } catch (error) {
@@ -129,8 +136,8 @@ export default function CastVotePage() {
 
   useEffect(() => {
     if (currentAccount) {
-      getVoterID(currentAccount).then((voterId) => {
-        setVoterId(voterId.toString());
+      getVoterID(currentAccount).then((voterId?) => {
+        setVoterId(Number(voterId));
       });
     }
   }, [currentAccount]);
@@ -176,7 +183,7 @@ export default function CastVotePage() {
                   htmlFor="candidate-id"
                   className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Voting Session ID
+                  Candidate ID
                 </label>
                 <input
                   type="number"
@@ -198,6 +205,11 @@ export default function CastVotePage() {
             </button>
           </form>
         </div>
+        {errorMessage !== "" && (
+          <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
+            <p className="text-red-500">{errorMessage}</p>
+          </div>
+        )}
       </div>
     </Layout>
   );

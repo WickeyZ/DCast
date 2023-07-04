@@ -580,7 +580,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     try {
       const contract = await connectSmartContract();
 
-      const voterDetails = await contract.getFarmData(voterAddress);
+      const voterDetails = await contract.getVoterDetails(voterAddress);
 
       console.log("Voter Details");
       console.log(voterDetails);
