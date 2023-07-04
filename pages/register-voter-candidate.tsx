@@ -20,7 +20,7 @@ export default function RegisterVoterCandidatePage() {
     getVotingSessionCount,
     getVotingSessionDetails,
   } = useContext(DCastContext);
-  const [role, setRole] = useState<roles | null>(null);
+  const [role, setRole] = useState<roles | null | undefined>(undefined);
 
   useEffect(() => {
     checkIfWalletIsConnected();
@@ -38,18 +38,19 @@ export default function RegisterVoterCandidatePage() {
 
   useEffect(() => {
     const currentRole =
-      role !== null
+      role !== null && role !== undefined
         ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
             ? "admin"
             : role.toLowerCase()) as roles)
-        : "guest";
+        : role === null
+        ? "guest"
+        : undefined;
     //Restrict users from accessing unaccessible pages with their roles
     if (
-      role !== null &&
+      role !== undefined &&
       currentRole != pages["/register-voter-candidate"].access
     ) {
-      router.push("/");
-    } else if (role === null) {
+      toast.error("You have no access to that page.");
       router.push("/");
     }
   }, [role]);
@@ -178,7 +179,7 @@ export default function RegisterVoterCandidatePage() {
     <Layout
       currentPage="/register-voter-candidate"
       currentRole={
-        role !== null
+        role !== null && role !== undefined
           ? ((role.toLowerCase() === "owner" || role.toLowerCase() === "admin"
               ? "admin"
               : role.toLowerCase()) as roles)
