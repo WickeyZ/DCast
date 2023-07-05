@@ -86,7 +86,9 @@ interface DCastData {
     candidateID: number
   ) => Promise<any>;
 
+  //my-voting-sessions
   getVoterID: (voterAddress: string) => Promise<any>;
+  getSingleVoterDetails: (voterAddress: string) => Promise<any>;
 
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
@@ -183,6 +185,7 @@ const defaultValue = {
   updateVotingSessionPhase: () => {},
   castVote: () => {},
   getVoterID: () => {},
+  getSingleVoterDetails: () => {},
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
   getFarmDataList: () => {},
@@ -444,8 +447,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       // [voterID: number,
       // voterAddress: string
       // sessionsParticipated: number[] ]
-
-      //return: farmLength:number, [] of singleFarmData
       return { voterDetailsList };
     } catch (error) {
       console.log("Error");
@@ -586,7 +587,21 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       console.log(voterDetails);
       return voterDetails[0];
     } catch (error) {
-      setError("Something went wrong in getting farm ID");
+      setError("Something went wrong in getting voter ID");
+    }
+  };
+
+  const getSingleVoterDetails = async (voterAddress: string) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterDetails = await contract.getVoterDetails(voterAddress);
+
+      console.log("Voter Details");
+      console.log(voterDetails);
+      return voterDetails;
+    } catch (error) {
+      setError("Something went wrong in getting single voter details");
     }
   };
 
@@ -1156,6 +1171,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         updateVotingSessionPhase,
         castVote,
         getVoterID,
+        getSingleVoterDetails,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,

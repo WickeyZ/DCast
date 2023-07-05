@@ -10,12 +10,9 @@ export default function MyVotingSessionsPage() {
     currentAccount,
     checkIfWalletIsConnected,
     checkAccountType,
-    getContractOwner,
-    getAdminList,
-    getFarmDataList,
-    getDistributionCenterDataList,
-    getRetailerDataList,
-    getConsumerDataList,
+    getVoterID,
+    getSingleVoterDetails,
+    getVotingSessionDetails,
   } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null | undefined>(undefined);
 
@@ -56,44 +53,44 @@ export default function MyVotingSessionsPage() {
   // ---------------------------------------------------------------------//
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [contractOwnerAddress, setContractOwnerAddress] = useState("");
-  const [adminAddresses, setAdminAddresses] = useState<string[]>([]);
-  const [farmDataList, setFarmDataList] = useState<any[]>([]);
-  const [distributionCenterDataList, setDistributionCenterDataList] = useState<
-    any[]
-  >([]);
-  const [retailerDataList, setRetailerDataList] = useState<any[]>([]);
-  const [consumerDataList, setConsumerDataList] = useState<any[]>([]);
+  const [voterAddress, setVoterAddress] = useState<string>("");
+  const [voterId, setVoterId] = useState<number>();
+  const [votingSessionDetailsArray, setVotingSessionDetailsArray] =
+    useState<any>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Loading...");
 
     try {
-      const contractOwnerAddress = await getContractOwner();
-      setContractOwnerAddress(contractOwnerAddress);
+      const voterDetails = await getSingleVoterDetails(currentAccount);
+      if (voterDetails[2].length === 0) {
+        setVotingSessionDetailsArray(null);
+      }
 
-      const adminAddresses = await getAdminList();
-      setAdminAddresses(adminAddresses);
-
-      const { farmDataList } = await getFarmDataList();
-      setFarmDataList(farmDataList);
-
-      const { distributionCenterDataList } =
-        await getDistributionCenterDataList();
-      setDistributionCenterDataList(distributionCenterDataList);
-
-      const { retailerDataList } = await getRetailerDataList();
-      setRetailerDataList(retailerDataList);
-
-      const { consumerDataList } = await getConsumerDataList();
-      setConsumerDataList(consumerDataList);
+      setVotingSessionDetailsArray(
+        voterDetails[2].map((votingId: any) => {
+          return getVotingSessionDetails(votingId);
+        })
+      );
 
       setIsLoaded(true);
-      toast.success("Accounts retrieved successfully!");
+      toast.dismiss(loadingToast);
+      toast.success("Details retrieved successfully!");
     } catch (error) {
-      toast.error("Error retrieving accounts");
+      setVotingSessionDetailsArray(null);
+      toast.dismiss(loadingToast);
+      toast.error("Error retrieving details");
     }
   };
+
+  useEffect(() => {
+    if (currentAccount) {
+      getVoterID(currentAccount).then((voterId?) => {
+        setVoterId(Number(voterId));
+      });
+    }
+  }, [currentAccount]);
 
   return (
     <Layout
@@ -121,210 +118,80 @@ export default function MyVotingSessionsPage() {
           </form>
         </div>
 
-        {isLoaded && (
-          <>
-            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
-              Admin Accounts
-            </h2>
-            <div className="relative overflow-x-auto">
-              <table className="border w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th scope="col" className="px-6 py-3">
-                      Account Address
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <td className="px-6 py-4 flex items-center">
-                      {contractOwnerAddress}
-                      <span className="ml-2 whitespace-nowrap bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                        Contract Owner
-                      </span>
-                    </td>
-                  </tr>
-                  {adminAddresses.map((address, index) => (
-                    <tr
-                      key={`${index}-${address}`}
-                      className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                    >
-                      <td className="px-6 py-4">{address}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
-              Farm Accounts
-            </h2>
-            {farmDataList.length > 0 ? (
-              <div className="relative overflow-x-auto">
-                <table className="border w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        {isLoaded &&
+          (votingSessionDetailsArray !== null ? (
+            <>
+              <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
+                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                   <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                     <tr>
                       <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Farm ID
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Account Address
+                        SESSIOn ID
                       </th>
                       <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Farm Name
+                        SESSION NAME
                       </th>
                       <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Farm Location
+                        SESSION PHASE
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        VOTING WEIGHT
+                      </th>
+                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
+                        VOTED CANDIDATE ID
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {farmDataList.map((farmData, index) => (
-                      <tr
-                        key={`${index}-farm`}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                      >
-                        <td className="px-6 py-4">{farmData[0].toNumber()}</td>
-                        <td className="px-6 py-4">{farmData[1]}</td>
-                        <td className="px-6 py-4">{farmData[2]}</td>
-                        <td className="px-6 py-4">{farmData[3]}</td>
-                      </tr>
-                    ))}
+                    {votingSessionDetailsArray.map(
+                      (votingSessionDetails: any, index: any) => (
+                        <tr
+                          key={`${index}-voting-session`}
+                          className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
+                        >
+                          <td className="px-6 py-4">
+                            {votingSessionDetails.details[0].toNumber()}
+                          </td>
+                          <td className="px-6 py-4">
+                            {votingSessionDetails.details[1]}
+                          </td>
+                          //TODO: left phase weight candidate id.
+                          {
+                            <>
+                              <td className="px-6 py-4">
+                                {votingSessionDetails.voterVSDetails[index][0]}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span
+                                  className={`${
+                                    votingSessionDetails.voterVSDetails[
+                                      index
+                                    ][1].toNumber() === 0
+                                      ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                      : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                  } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
+                                >
+                                  {votingSessionDetails.voterVSDetails[
+                                    index
+                                  ][1].toNumber() === 0
+                                    ? "No Vote"
+                                    : `Voted: ${votingSessionDetails.voterVSDetails[
+                                        index
+                                      ][1].toNumber()}`}
+                                </span>
+                              </td>
+                            </>
+                          }
+                        </tr>
+                      )
+                    )}
                   </tbody>
                 </table>
               </div>
-            ) : (
-              <div className="mb-3 text-gray-500 dark:text-gray-400">
-                There are no farm accounts yet.
-              </div>
-            )}
-
-            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
-              Distribution Center Accounts
-            </h2>
-            {distributionCenterDataList.length > 0 ? (
-              <div className="relative overflow-x-auto">
-                <table className="border w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        DC ID
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Account Address
-                      </th>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        DC Name
-                      </th>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        DC Location
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {distributionCenterDataList.map((dcData, index) => (
-                      <tr
-                        key={`${index}-dc`}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                      >
-                        <td className="px-6 py-4">{dcData[0].toNumber()}</td>
-                        <td className="px-6 py-4">{dcData[1]}</td>
-                        <td className="px-6 py-4">{dcData[2]}</td>
-                        <td className="px-6 py-4">{dcData[3]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="mb-3 text-gray-500 dark:text-gray-400">
-                There are no distribution center accounts yet.
-              </div>
-            )}
-
-            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
-              Retailer Accounts
-            </h2>
-            {retailerDataList.length > 0 ? (
-              <div className="relative overflow-x-auto">
-                <table className="border w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Retailer ID
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Account Address
-                      </th>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Retailer Name
-                      </th>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Retailer Location
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {retailerDataList.map((rtData, index) => (
-                      <tr
-                        key={`${index}-retailer`}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                      >
-                        <td className="px-6 py-4">{rtData[0].toNumber()}</td>
-                        <td className="px-6 py-4">{rtData[1]}</td>
-                        <td className="px-6 py-4">{rtData[2]}</td>
-                        <td className="px-6 py-4">{rtData[3]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="mb-3 text-gray-500 dark:text-gray-400">
-                There are no retailer accounts yet.
-              </div>
-            )}
-
-            <h2 className="text-lg font-semibold text-slate-800 mt-8 mb-4">
-              Consumer Accounts
-            </h2>
-            {consumerDataList.length > 0 ? (
-              <div className="relative overflow-x-auto">
-                <table className="border w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                  <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Consumer ID
-                      </th>
-                      <th scope="col" className="px-6 py-3">
-                        Account Address
-                      </th>
-                      <th scope="col" className="px-6 py-3 whitespace-nowrap">
-                        Consumer Name
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {consumerDataList.map((cData, index) => (
-                      <tr
-                        key={`${index}-retailer`}
-                        className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
-                      >
-                        <td className="px-6 py-4">{cData[0].toNumber()}</td>
-                        <td className="px-6 py-4">{cData[1]}</td>
-                        <td className="px-6 py-4">{cData[2]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="mb-3 text-gray-500 dark:text-gray-400">
-                There are no consumer accounts yet.
-              </div>
-            )}
-          </>
-        )}
+            </>
+          ) : (
+            <></>
+          ))}
       </div>
     </Layout>
   );
