@@ -71,6 +71,8 @@ export default function MyVotingSessionsPage() {
       if (voterDetails[2].length === 0) {
         console.log("No voting session");
         setVotingSessionDetailsArray(null);
+        setVoterVotingSessionDetailsArray(null);
+        setIsLoaded(true);
         toast.dismiss(loadingToast);
         toast("You are not in any voting sessions");
         return;
@@ -148,15 +150,15 @@ export default function MyVotingSessionsPage() {
           <form onSubmit={handleSubmit}>
             <button
               type="submit"
-              className="text-white rounded-lg bg-primary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:focus:ring-blue-800"
+              className="text-white rounded-lg bg-primary focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm w-full sm:w-auto px-5 py-2.5 mb-4 text-center dark:focus:ring-blue-800"
             >
               View
             </button>
           </form>
         </div>
 
-        {isLoaded &&
-          (votingSessionDetailsArray !== null &&
+        {isLoaded ? (
+          votingSessionDetailsArray !== null &&
           voterVotingSessionDetailsArray !== null ? (
             <>
               <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
@@ -237,7 +239,10 @@ export default function MyVotingSessionsPage() {
             <div className="mb-3 text-gray-500 dark:text-gray-400">
               You are not in any voting sessions.
             </div>
-          ))}
+          )
+        ) : (
+          <></>
+        )}
       </div>
     </Layout>
   );
