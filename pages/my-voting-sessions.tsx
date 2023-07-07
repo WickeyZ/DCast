@@ -13,6 +13,7 @@ export default function MyVotingSessionsPage() {
     getVoterID,
     getSingleVoterDetails,
     getVotingSessionDetails,
+    getVoterVotingSessionDetails,
   } = useContext(DCastContext);
   const [role, setRole] = useState<roles | null | undefined>(undefined);
 
@@ -55,8 +56,11 @@ export default function MyVotingSessionsPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [voterAddress, setVoterAddress] = useState<string>("");
   const [voterId, setVoterId] = useState<number>();
-  const [votingSessionDetailsArray, setVotingSessionDetailsArray] =
-    useState<any>(null);
+  const [votingSessionDetailsArray, setVotingSessionDetailsArray] = useState<
+    any[] | null
+  >(null);
+  const [voterVotingSessionDetailsArray, setVoterVotingSessionDetailsArray] =
+    useState<any[] | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -65,24 +69,57 @@ export default function MyVotingSessionsPage() {
     try {
       const voterDetails = await getSingleVoterDetails(currentAccount);
       if (voterDetails[2].length === 0) {
+        console.log("No voting session");
         setVotingSessionDetailsArray(null);
+        toast.dismiss(loadingToast);
+        toast("You are not in any voting sessions");
+        return;
       }
 
-      setVotingSessionDetailsArray(
-        voterDetails[2].map((votingId: any) => {
-          return getVotingSessionDetails(votingId);
+      const VSDetailsArray: any[] = [];
+      const voterVSDetailsArray: any[] = [];
+
+      await Promise.all(
+        voterDetails[2].map(async (votingId: any) => {
+          console.log("Hey");
+          console.log(votingId.toNumber());
+
+          const votingSessionDetails = await getVotingSessionDetails(
+            votingId.toNumber()
+          );
+          VSDetailsArray.push(votingSessionDetails);
+
+          const voterVSDetails = await getVoterVotingSessionDetails(
+            currentAccount,
+            votingId
+          );
+          voterVSDetailsArray.push(voterVSDetails);
         })
       );
+
+      setVotingSessionDetailsArray(VSDetailsArray);
+      setVoterVotingSessionDetailsArray(voterVSDetailsArray);
 
       setIsLoaded(true);
       toast.dismiss(loadingToast);
       toast.success("Details retrieved successfully!");
     } catch (error) {
+      console.log(error);
       setVotingSessionDetailsArray(null);
       toast.dismiss(loadingToast);
       toast.error("Error retrieving details");
     }
   };
+
+  useEffect(() => {
+    console.log("votingSessionDetailsArray updated");
+    console.log(votingSessionDetailsArray);
+  }, [votingSessionDetailsArray]);
+
+  useEffect(() => {
+    console.log("voterVotingSessionDetailsArray updated");
+    console.log(voterVotingSessionDetailsArray);
+  }, [voterVotingSessionDetailsArray]);
 
   useEffect(() => {
     if (currentAccount) {
@@ -119,7 +156,8 @@ export default function MyVotingSessionsPage() {
         </div>
 
         {isLoaded &&
-          (votingSessionDetailsArray !== null ? (
+          (votingSessionDetailsArray !== null &&
+          voterVotingSessionDetailsArray !== null ? (
             <>
               <div className="relative overflow-x-auto rounded-lg border shadow mt-8 text-sm font-medium mr-2">
                 <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -155,33 +193,39 @@ export default function MyVotingSessionsPage() {
                           <td className="px-6 py-4">
                             {votingSessionDetails.details[1]}
                           </td>
-                          //TODO: left phase weight candidate id.
-                          {
-                            <>
-                              <td className="px-6 py-4">
-                                {votingSessionDetails.voterVSDetails[index][0]}
-                              </td>
-                              <td className="px-6 py-4">
-                                <span
-                                  className={`${
-                                    votingSessionDetails.voterVSDetails[
-                                      index
-                                    ][1].toNumber() === 0
-                                      ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
-                                      : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                  } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
-                                >
-                                  {votingSessionDetails.voterVSDetails[
+                          <td className="px-6 py-4">
+                            <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                              {votingSessionDetails.details[2] === 0
+                                ? "Registration"
+                                : votingSessionDetails.details[2] === 1
+                                ? "Voting"
+                                : "Close"}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {voterVotingSessionDetailsArray[index][0]}
+                          </td>
+                          <td className="px-6 py-4">
+                            {
+                              <span
+                                className={`${
+                                  voterVotingSessionDetailsArray[
                                     index
                                   ][1].toNumber() === 0
-                                    ? "No Vote"
-                                    : `Voted: ${votingSessionDetails.voterVSDetails[
-                                        index
-                                      ][1].toNumber()}`}
-                                </span>
-                              </td>
-                            </>
-                          }
+                                    ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                    : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
+                                } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
+                              >
+                                {voterVotingSessionDetailsArray[
+                                  index
+                                ][1].toNumber() === 0
+                                  ? "No Vote"
+                                  : `Voted: ${voterVotingSessionDetailsArray[
+                                      index
+                                    ][1].toNumber()}`}
+                              </span>
+                            }
+                          </td>
                         </tr>
                       )
                     )}
@@ -190,7 +234,9 @@ export default function MyVotingSessionsPage() {
               </div>
             </>
           ) : (
-            <></>
+            <div className="mb-3 text-gray-500 dark:text-gray-400">
+              You are not in any voting sessions.
+            </div>
           ))}
       </div>
     </Layout>

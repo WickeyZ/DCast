@@ -89,6 +89,10 @@ interface DCastData {
   //my-voting-sessions
   getVoterID: (voterAddress: string) => Promise<any>;
   getSingleVoterDetails: (voterAddress: string) => Promise<any>;
+  getVoterVotingSessionDetails: (
+    voterAddress: string,
+    votingSessionID: number
+  ) => Promise<any>;
 
   // checkRatingStatus: (rating: VotingPhase) => Promise<number>;
   getContractOwner: () => Promise<string>;
@@ -186,6 +190,7 @@ const defaultValue = {
   castVote: () => {},
   getVoterID: () => {},
   getSingleVoterDetails: () => {},
+  getVoterVotingSessionDetails: () => {},
   // checkRatingStatus: () => {},
   getContractOwner: () => {},
   getFarmDataList: () => {},
@@ -297,7 +302,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
       if (details[0] != 0) {
         const phase = details[2];
-        console.log(phase);
 
         //Get Candidate Details
         const candidateLength = await contract.getVotingSessionCandidateCount(
@@ -602,6 +606,28 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       return voterDetails;
     } catch (error) {
       setError("Something went wrong in getting single voter details");
+    }
+  };
+
+  const getVoterVotingSessionDetails = async (
+    voterAddress: string,
+    votingSessionID: number
+  ) => {
+    try {
+      const contract = await connectSmartContract();
+
+      const voterVSDetails = await contract.getVoterVotingSessionDetails(
+        voterAddress,
+        votingSessionID
+      );
+
+      console.log("Voter Voting Session Details");
+      console.log(voterVSDetails);
+      return voterVSDetails;
+    } catch (error) {
+      setError(
+        "Something went wrong in getting voter's voting session details"
+      );
     }
   };
 
@@ -1172,6 +1198,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         castVote,
         getVoterID,
         getSingleVoterDetails,
+        getVoterVotingSessionDetails,
         // checkRatingStatus,
         getContractOwner,
         getFarmDataList,
