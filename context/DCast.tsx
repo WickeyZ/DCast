@@ -31,7 +31,14 @@ const client = ipfsHttpClient({
 });
 
 export const fetchContract = (signerOrProvider: any) => {
-  return new ethers.Contract(contractAddress, contractABI, signerOrProvider);
+  const contract = new ethers.Contract(
+    contractAddress,
+    contractABI,
+    signerOrProvider
+  );
+  console.log("SMART CONTRACT FETCHED");
+  console.log(contractAddress);
+  return contract;
 };
 
 interface DCastData {
@@ -227,7 +234,11 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
     const provider = new ethers.BrowserProvider(connection);
-    const signer = provider.getSigner();
+    const signer = await provider.getSigner();
+    console.log("SMART CONTRACT CONNECTED");
+    console.log(connection);
+    console.log(provider);
+    console.log(signer);
     return fetchContract(signer);
   };
 
