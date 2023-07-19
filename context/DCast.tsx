@@ -30,7 +30,7 @@ const client = ipfsHttpClient({
   },
 });
 
-export const fetchContract = (signerOrProvider: any) => {
+export const fetchContract = async (signerOrProvider: any) => {
   const contract = new ethers.Contract(
     contractAddress,
     contractABI,
@@ -239,7 +239,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     console.log(connection);
     console.log(provider);
     console.log(signer);
-    return fetchContract(signer);
+    const fetchedContract = await fetchContract(signer);
+    console.log("fetchedContract:", fetchedContract);
+    return fetchedContract;
   };
 
   // CONNECTING METAMASK
