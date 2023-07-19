@@ -1,6 +1,6 @@
 import React, { useState, createContext } from "react";
 import Web3Modal from "web3modal";
-import { BigNumber, Signer, ethers } from "ethers";
+import { BigNumberish, Signer, ethers } from "ethers";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import { VotingPhase } from "@/types";
 
@@ -226,7 +226,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   const connectSmartContract = async () => {
     const web3Modal = new Web3Modal();
     const connection = await web3Modal.connect();
-    const provider = new ethers.providers.Web3Provider(connection);
+    const provider = new ethers.BrowserProvider(connection);
     const signer = provider.getSigner();
     return fetchContract(signer);
   };
