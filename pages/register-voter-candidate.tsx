@@ -99,7 +99,17 @@ export default function RegisterVoterCandidatePage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const loadingToast = toast.loading("Loading...");
-    const maxVotingSessionId = await getVotingSessionCount();
+    const maxVotingSessionId = Number(await getVotingSessionCount());
+
+    if (
+      Number(votingSessionId) > maxVotingSessionId ||
+      Number(votingSessionId) < 1
+    ) {
+      setErrorMessage(`Voting Session ${votingSessionId} does not exist`);
+      toast.dismiss(loadingToast);
+      toast.error(`Voting Session ${votingSessionId} does not exist`);
+      return;
+    }
 
     const currentPhase = Number(
       (await getVotingSessionDetails(Number(votingSessionId))).details[2]
@@ -116,15 +126,6 @@ export default function RegisterVoterCandidatePage() {
       return;
     }
 
-    if (
-      Number(votingSessionId) > maxVotingSessionId ||
-      Number(votingSessionId) < 1
-    ) {
-      setErrorMessage(`Voting Session ${votingSessionId} does not exist`);
-      toast.dismiss(loadingToast);
-      toast.error(`Voting Session ${votingSessionId} does not exist`);
-      return;
-    }
     if (registerRoleType === "VOTER") {
       try {
         const maxVoterId = await getVoterCount();

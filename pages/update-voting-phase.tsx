@@ -80,7 +80,7 @@ export default function UpdateVotingPhasePage() {
       return;
     }
     try {
-      const maxVotingSessionId = await getVotingSessionCount();
+      const maxVotingSessionId = Number(await getVotingSessionCount());
       if (
         Number(votingSessionId) > maxVotingSessionId ||
         Number(votingSessionId) < 1

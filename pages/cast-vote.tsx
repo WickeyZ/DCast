@@ -62,7 +62,7 @@ export default function CastVotePage() {
 
     try {
       //! votingSessionExists(_votingSessionID)
-      const maxVotingSessionId = await getVotingSessionCount();
+      const maxVotingSessionId = Number(await getVotingSessionCount());
       if (
         Number(votingSessionId) > maxVotingSessionId ||
         Number(votingSessionId) < 1
