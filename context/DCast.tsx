@@ -282,6 +282,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         toast((t) => <MetamaskHover />, {
           icon: "🦊",
         });
+        toastedError = true;
         throw error;
       }
 
