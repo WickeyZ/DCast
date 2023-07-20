@@ -500,11 +500,10 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     try {
       const contract = await connectSmartContract();
 
-      const votingSessionCount: number = (
-        await contract.getVotingSessionCount()
-      ).toNumber();
+      const votingSessionCount: number =
+        (await contract.getVotingSessionCount()) as number;
       console.log(votingSessionCount);
-      return votingSessionCount;
+      return Number(votingSessionCount);
     } catch (error) {
       setError("Something went wrong in checking voter count");
     }

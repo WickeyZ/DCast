@@ -68,6 +68,7 @@ export default function AddVotingSessionPage() {
       try {
         await addVotingSession(votingSessionName);
         const newVotingSessionId = await getVotingSessionCount();
+        console.log(newVotingSessionId);
         setLatestVotingSessionId(newVotingSessionId);
         toast.dismiss(loadingToast);
         toast.success("Voting Session added successfully!");
