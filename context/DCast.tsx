@@ -274,10 +274,14 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
   // CONNECT WALLET
   const connectWallet = async () => {
+    let toastedError = false;
     try {
       console.log("connectWallet");
       if (!window.ethereum) {
         setError("Please install MetaMask first.");
+        toast((t) => <MetamaskHover />, {
+          icon: "🦊",
+        });
         throw error;
       }
 
@@ -289,9 +293,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
       setIsWalletConnected(true);
     } catch (error) {
       console.log(error);
-      toast((t) => <MetamaskHover />, {
-        icon: "🦊",
-      });
+      !toastedError && toast.error("Error connecting wallet");
     }
   };
 
