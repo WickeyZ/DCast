@@ -313,8 +313,8 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
       const details = await contract.getVotingSessionDetails(votingSessionId);
 
-      if (details[0] != 0) {
-        const phase = details[2];
+      if (Number(details[0]) != 0) {
+        const phase = Number(details[2]);
 
         //Get Candidate Details
         const candidateLength = await contract.getVotingSessionCandidateCount(
@@ -322,7 +322,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         );
 
         const candidateIds = Array.from(
-          { length: candidateLength },
+          { length: Number(candidateLength) },
           (_, i) => i + 1
         );
 
@@ -345,7 +345,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         );
         const allVoterAddresses = await contract.getVoterAddresses();
         const voterAddressPromises = voterIds.map(
-          (voterId: number) => allVoterAddresses[voterId - 1]
+          (voterId: number) => allVoterAddresses[(voterId as number) - 1]
         );
         const voterAddresses = await Promise.all(voterAddressPromises);
         const voterDetailPromises = voterAddresses.map((voterAddress) =>
@@ -360,7 +360,18 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         );
 
         const voterVSDetails = await Promise.all(voterVSDetailPromises);
-
+        console.log(
+          "VS Details",
+          details,
+          "candidate Details",
+          candidateDetails,
+          "Winner Details",
+          winnerCandidateIds,
+          "Voter Details",
+          voterDetails,
+          "VoterVS Details",
+          voterVSDetails
+        );
         return {
           details,
           candidateDetails,

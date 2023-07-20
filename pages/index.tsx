@@ -37,22 +37,21 @@ export default function CheckVotingSessionPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const loadingToast = toast.loading("Loading...");
-    getVotingSessionDetails(Number(votingSessionId)).then(
-      (votingSessionDetails: any) => {
-        setVotingSessionDetails(votingSessionDetails);
-        if (votingSessionDetails === null) {
-          setErrorMessage(
-            `Voting Session with ID ${votingSessionId} does not exist.`
-          );
-          toast.dismiss(loadingToast);
-          toast.error(`Voting Session with ID ${votingSessionId} not found.`);
-          return;
-        }
-        setErrorMessage("");
-        toast.dismiss(loadingToast);
-        toast.success("Details retrieved successfully!");
-      }
-    );
+    const vsDetails = await getVotingSessionDetails(Number(votingSessionId));
+
+    console.log("Inside promise box voting session details", vsDetails);
+    setVotingSessionDetails(vsDetails);
+    if (vsDetails === null) {
+      setErrorMessage(
+        `Voting Session with ID ${votingSessionId} does not exist.`
+      );
+      toast.dismiss(loadingToast);
+      toast.error(`Voting Session with ID ${votingSessionId} not found.`);
+      return;
+    }
+    setErrorMessage("");
+    toast.dismiss(loadingToast);
+    toast.success("Details retrieved successfully!");
   };
 
   console.log("votingSessionDetails", votingSessionDetails);
@@ -128,7 +127,7 @@ export default function CheckVotingSessionPage() {
                       Session ID
                     </th>
                     <td className="px-6 py-4">
-                      {votingSessionDetails.details[0].toNumber()}
+                      {votingSessionDetails.details[0] as number}
                     </td>
                   </tr>
                   <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
@@ -172,9 +171,9 @@ export default function CheckVotingSessionPage() {
                     </th>
                     <td className="px-6 py-4">
                       {`${new Date(
-                        votingSessionDetails.details[3].toNumber() * 1000
+                        Number(votingSessionDetails.details[3]) * 1000
                       ).toLocaleDateString()} ${new Date(
-                        votingSessionDetails.details[3].toNumber() * 1000
+                        Number(votingSessionDetails.details[3]) * 1000
                       ).toLocaleTimeString("en-US", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -197,9 +196,9 @@ export default function CheckVotingSessionPage() {
                       </th>
                       <td className="px-6 py-4">
                         {`${new Date(
-                          votingSessionDetails.details[4].toNumber() * 1000
+                          Number(votingSessionDetails.details[4]) * 1000
                         ).toLocaleDateString()} ${new Date(
-                          votingSessionDetails.details[4].toNumber() * 1000
+                          Number(votingSessionDetails.details[4]) * 1000
                         ).toLocaleTimeString("en-US", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -218,9 +217,9 @@ export default function CheckVotingSessionPage() {
                       </th>
                       <td className="px-6 py-4">
                         {`${new Date(
-                          votingSessionDetails.details[5].toNumber() * 1000
+                          Number(votingSessionDetails.details[5]) * 1000
                         ).toLocaleDateString()} ${new Date(
-                          votingSessionDetails.details[5].toNumber() * 1000
+                          Number(votingSessionDetails.details[5]) * 1000
                         ).toLocaleTimeString("en-US", {
                           hour: "2-digit",
                           minute: "2-digit",
@@ -273,7 +272,7 @@ export default function CheckVotingSessionPage() {
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                           <td className="px-6 py-4">
-                            {candidateData[0].toNumber()}
+                            {candidateData[0] as number}
                           </td>
                           <td className="px-4 py-4 flex items-center gap-4 capitalize font-bold text-gray-900">
                             <img
@@ -285,15 +284,15 @@ export default function CheckVotingSessionPage() {
                           </td>
                           <td className="px-6 py-4">{candidateData[2]}</td>
                           <td className="px-6 py-4">
-                            {candidateData[4].toNumber()}
+                            {candidateData[4] as number}
                           </td>
                           <td className="px-6 py-4">
                             {(() => {
                               if (votingSessionDetails.details[2] === 2) {
                                 for (const winnerId of votingSessionDetails.winnerCandidateIds) {
                                   if (
-                                    candidateData[0].toNumber() ===
-                                    winnerId.toNumber()
+                                    (candidateData[0] as number) ===
+                                    (winnerId as number)
                                   ) {
                                     return (
                                       <span className="bg-green-100 text-green-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
@@ -357,7 +356,7 @@ export default function CheckVotingSessionPage() {
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                           <td className="px-6 py-4">
-                            {voterData[0].toNumber()}
+                            {voterData[0] as number}
                           </td>
                           <td className="px-6 py-4">{voterData[1]}</td>
                           {
@@ -368,20 +367,22 @@ export default function CheckVotingSessionPage() {
                               <td className="px-6 py-4">
                                 <span
                                   className={`${
-                                    votingSessionDetails.voterVSDetails[
+                                    (votingSessionDetails.voterVSDetails[
                                       index
-                                    ][1].toNumber() === 0
+                                    ][1] as number) === 0
                                       ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
                                       : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                                   } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
                                 >
-                                  {votingSessionDetails.voterVSDetails[
+                                  {(votingSessionDetails.voterVSDetails[
                                     index
-                                  ][1].toNumber() === 0
+                                  ][1] as number) === 0
                                     ? "No Vote"
-                                    : `Voted: ${votingSessionDetails.voterVSDetails[
-                                        index
-                                      ][1].toNumber()}`}
+                                    : `Voted: ${
+                                        votingSessionDetails.voterVSDetails[
+                                          index
+                                        ][1] as number
+                                      }`}
                                 </span>
                               </td>
                             </>
