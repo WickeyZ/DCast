@@ -133,6 +133,10 @@ const Layout: React.FC<LayoutProps> = ({
       console.log("Account changed");
 
       checkIfWalletIsConnected();
+      toast("Redirecting you to the home page.");
+      toast("Account changed.", {
+        icon: "🙍‍♂️",
+      });
       router.push("/");
     });
   }, []);
