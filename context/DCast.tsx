@@ -267,15 +267,19 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
   // CONNECT WALLET
   const connectWallet = async () => {
-    console.log("connectWallet");
-    if (!window.ethereum) return setError("Please install MetaMask first.");
+    try {
+      console.log("connectWallet");
+      if (!window.ethereum) return setError("Please install MetaMask first.");
 
-    const account = await window.ethereum.request({
-      method: "eth_requestAccounts",
-    });
+      const account = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
 
-    setCurrentAccount(account[0]);
-    setIsWalletConnected(true);
+      setCurrentAccount(account[0]);
+      setIsWalletConnected(true);
+    } catch {
+      console.log(error);
+    }
   };
 
   //UPLOAD TO IPFS VOTER IMAGE
