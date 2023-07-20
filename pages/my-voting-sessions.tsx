@@ -84,10 +84,10 @@ export default function MyVotingSessionsPage() {
       await Promise.all(
         voterDetails[2].map(async (votingId: any) => {
           console.log("Hey");
-          console.log(votingId.toNumber());
+          console.log(Number(votingId));
 
           const votingSessionDetails = await getVotingSessionDetails(
-            votingId.toNumber()
+            Number(votingId)
           );
           VSDetailsArray.push(votingSessionDetails);
 
@@ -190,41 +190,41 @@ export default function MyVotingSessionsPage() {
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                           <td className="px-6 py-4">
-                            {votingSessionDetails.details[0].toNumber()}
+                            {Number(votingSessionDetails.details[0])}
                           </td>
                           <td className="px-6 py-4">
                             {votingSessionDetails.details[1]}
                           </td>
                           <td className="px-6 py-4">
                             <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                              {votingSessionDetails.details[2] === 0
+                              {Number(votingSessionDetails.details[2]) === 0
                                 ? "Registration"
-                                : votingSessionDetails.details[2] === 1
+                                : Number(votingSessionDetails.details[2]) === 1
                                 ? "Voting"
                                 : "Close"}
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            {voterVotingSessionDetailsArray[index][0]}
+                            {Number(voterVotingSessionDetailsArray[index][0])}
                           </td>
                           <td className="px-6 py-4">
                             {
                               <span
                                 className={`${
-                                  voterVotingSessionDetailsArray[
-                                    index
-                                  ][1].toNumber() === 0
+                                  Number(
+                                    voterVotingSessionDetailsArray[index][1]
+                                  ) === 0
                                     ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
                                     : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                                 } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
                               >
-                                {voterVotingSessionDetailsArray[
-                                  index
-                                ][1].toNumber() === 0
+                                {Number(
+                                  voterVotingSessionDetailsArray[index][1]
+                                ) === 0
                                   ? "No Vote"
-                                  : `Voted: ${voterVotingSessionDetailsArray[
-                                      index
-                                    ][1].toNumber()}`}
+                                  : `Voted: ${Number(
+                                      voterVotingSessionDetailsArray[index][1]
+                                    )}`}
                               </span>
                             }
                           </td>

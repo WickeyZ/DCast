@@ -395,6 +395,7 @@ contract DCast {
         voterExists(_voterID)
         votingWeightIsNotZero(_votingWeight)
         voterNotRegistered(_votingSessionID, _voterID)
+        votingPhaseIsRegistration(_votingSessionID)
     {
         VotingSession storage votingSession = votingSessions[_votingSessionID];
 
@@ -446,7 +447,12 @@ contract DCast {
         string memory _candidateName,
         string memory _description,
         string memory _candidateImageIPFS_URL
-    ) public onlyAdmin votingSessionExists(_votingSessionID) {
+    )
+        public
+        onlyAdmin
+        votingSessionExists(_votingSessionID)
+        votingPhaseIsRegistration(_votingSessionID)
+    {
         VotingSession storage votingSession = votingSessions[_votingSessionID];
         votingSession.votingSessionRoles.registeredCandidateCount.increment();
         uint256 _candidateID = votingSession

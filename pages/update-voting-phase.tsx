@@ -74,7 +74,7 @@ export default function UpdateVotingPhasePage() {
 
   const handleSubmit = async (buttonClicked: string) => {
     let loadingToast;
-    if (!isNaN(votingSessionId as number)) {
+    if (!isNaN(Number(votingSessionId))) {
       loadingToast = toast.loading("Loading...");
     } else {
       return;
@@ -82,8 +82,8 @@ export default function UpdateVotingPhasePage() {
     try {
       const maxVotingSessionId = await getVotingSessionCount();
       if (
-        (votingSessionId as number) > maxVotingSessionId ||
-        (votingSessionId as number) < 1
+        Number(votingSessionId) > maxVotingSessionId ||
+        Number(votingSessionId) < 1
       ) {
         //! votingSessionExists
         setErrorMessage(
@@ -94,9 +94,9 @@ export default function UpdateVotingPhasePage() {
         return;
       }
 
-      const currentPhase = (
-        await getVotingSessionDetails(votingSessionId as number)
-      ).details[2];
+      const currentPhase = Number(
+        (await getVotingSessionDetails(Number(votingSessionId))).details[2]
+      );
 
       if (buttonClicked === "checkPhase") {
         const phaseString = await checkCurrentPhaseString(currentPhase);
@@ -136,11 +136,11 @@ export default function UpdateVotingPhasePage() {
           }
         }
 
-        await updateVotingSessionPhase(votingSessionId as number);
+        await updateVotingSessionPhase(Number(votingSessionId));
         setErrorMessage("");
-        const updatedPhase = (
-          await getVotingSessionDetails(votingSessionId as number)
-        ).details[2];
+        const updatedPhase = Number(
+          (await getVotingSessionDetails(Number(votingSessionId))).details[2]
+        );
         const phaseString = await checkCurrentPhaseString(updatedPhase);
         toast.dismiss(loadingToast);
         toast.success(`Phase updated to '${phaseString}'`);

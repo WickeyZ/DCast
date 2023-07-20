@@ -54,6 +54,7 @@ export default function CastVotePage() {
   const [candidateId, setCandidateId] = useState<number>();
   const [voterId, setVoterId] = useState<number>();
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [voteCasted, setVoteCasted] = useState<number>(0);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,9 +64,10 @@ export default function CastVotePage() {
       //! votingSessionExists(_votingSessionID)
       const maxVotingSessionId = await getVotingSessionCount();
       if (
-        (votingSessionId as number) > maxVotingSessionId ||
-        (votingSessionId as number) < 1
+        Number(votingSessionId) > maxVotingSessionId ||
+        Number(votingSessionId) < 1
       ) {
+        setVoteCasted(0);
         setErrorMessage(`Voting Session ${votingSessionId} does not exist`);
         toast.dismiss(loadingToast);
         toast.error(`Voting Session ${votingSessionId} does not exist`);
@@ -73,11 +75,12 @@ export default function CastVotePage() {
       }
 
       //! votingPhaseIsVoting(_votingSessionID)
-      const currentPhase = (
-        await getVotingSessionDetails(votingSessionId as number)
-      ).details[2];
+      const currentPhase = Number(
+        (await getVotingSessionDetails(Number(votingSessionId))).details[2]
+      );
       console.log(currentPhase);
       if (currentPhase !== 1) {
+        setVoteCasted(0);
         setErrorMessage(
           `Voting Session ${votingSessionId} phase is not Voting`
         );
@@ -92,6 +95,7 @@ export default function CastVotePage() {
       ).voterDetails;
 
       if (votingSessionVoters === undefined) {
+        setVoteCasted(0);
         setErrorMessage(`You're not in Voting Session ${votingSessionId}`);
         toast.dismiss(loadingToast);
         toast.error(`You're not in Voting Session ${votingSessionId}`);
@@ -100,12 +104,13 @@ export default function CastVotePage() {
 
       let voterInSession = false;
       for (let i = 0; i < votingSessionVoters.length; i++) {
-        if (votingSessionVoters[i][0].toNumber() === voterId) {
+        if (Number(votingSessionVoters[i][0]) === voterId) {
           voterInSession = true;
         }
       }
 
       if (!voterInSession) {
+        setVoteCasted(0);
         setErrorMessage(`You're not in Voting Session ${votingSessionId}`);
         toast.dismiss(loadingToast);
         toast.error(`You're not in Voting Session ${votingSessionId}`);
@@ -113,11 +118,11 @@ export default function CastVotePage() {
       }
 
       //! voterNotVoted(_votingSessionID)
-      const voterVoted = (
-        await getVotingSessionDetails(votingSessionId)
-      ).voterVSDetails[(voterId as number) - 1][1].toNumber();
+      const voterVoted = (await getVotingSessionDetails(votingSessionId))
+        .voterVSDetails[Number(voterId) - 1][1];
 
-      if (voterVoted) {
+      if (Number(voterVoted)) {
+        setVoteCasted(0);
         setErrorMessage(`You had already voted before`);
         toast.dismiss(loadingToast);
         toast.error(`You had already voted before`);
@@ -130,6 +135,7 @@ export default function CastVotePage() {
       ).candidateDetails;
 
       if (votingSessionCandidates === undefined) {
+        setVoteCasted(0);
         setErrorMessage(
           `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
         );
@@ -143,12 +149,13 @@ export default function CastVotePage() {
       let candidateInSession = false;
 
       for (let i = 0; i < votingSessionCandidates.length; i++) {
-        if (votingSessionCandidates[i][0].toNumber() === candidateId) {
+        if (Number(votingSessionCandidates[i][0]) === candidateId) {
           candidateInSession = true;
         }
       }
 
       if (!candidateInSession) {
+        setVoteCasted(0);
         setErrorMessage(
           `No Candidate ${candidateId} in Voting Session ${votingSessionId}`
         );
@@ -162,10 +169,11 @@ export default function CastVotePage() {
       //End validation
 
       await castVote(
-        votingSessionId as number,
-        voterId as number,
-        candidateId as number
+        Number(votingSessionId),
+        Number(voterId),
+        Number(candidateId)
       );
+      setVoteCasted(Number(candidateId));
       setErrorMessage("");
       toast.dismiss(loadingToast);
       toast.success("Vote casted successfully!");
@@ -256,6 +264,18 @@ export default function CastVotePage() {
           <div className="mt-8 text-sm text-left text-gray-500 dark:text-gray-400">
             <p className="text-red-500">{errorMessage}</p>
           </div>
+        )}
+
+        {voteCasted !== 0 && errorMessage === "" ? (
+          <div
+            className="p-4 mt-6 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+            role="alert"
+          >
+            <span className="font-medium">Vote Casted to Candidate </span>{" "}
+            {voteCasted}
+          </div>
+        ) : (
+          <></>
         )}
       </div>
     </Layout>

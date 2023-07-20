@@ -345,8 +345,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
         );
         const allVoterAddresses = await contract.getVoterAddresses();
         const voterAddressPromises = voterIds.map(
-          (voterId: number) => allVoterAddresses[(voterId as number) - 1]
+          (voterId: number) => allVoterAddresses[Number(voterId) - 1]
         );
+
         const voterAddresses = await Promise.all(voterAddressPromises);
         const voterDetailPromises = voterAddresses.map((voterAddress) =>
           contract.getVoterDetails(voterAddress)
@@ -418,9 +419,9 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     try {
       const contract = await connectSmartContract();
 
-      const voterCount: number = (await contract.getVoterCount()).toNumber();
+      const voterCount: number = await contract.getVoterCount();
       console.log(voterCount);
-      return voterCount;
+      return Number(voterCount);
     } catch (error) {
       setError("Something went wrong in checking voter count");
     }
@@ -557,11 +558,10 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     try {
       const contract = await connectSmartContract();
 
-      const candidateCount: number = (
-        await contract.getVotingSessionCandidateCount(votingSessionID)
-      ).toNumber();
+      const candidateCount: number =
+        await contract.getVotingSessionCandidateCount(votingSessionID);
       console.log(candidateCount);
-      return candidateCount;
+      return Number(candidateCount);
     } catch (error) {
       setError("Something went wrong in getting candidate count");
       throw error;

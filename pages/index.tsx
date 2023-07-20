@@ -37,6 +37,7 @@ export default function CheckVotingSessionPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const loadingToast = toast.loading("Loading...");
+
     const vsDetails = await getVotingSessionDetails(Number(votingSessionId));
 
     console.log("Inside promise box voting session details", vsDetails);
@@ -47,6 +48,10 @@ export default function CheckVotingSessionPage() {
       );
       toast.dismiss(loadingToast);
       toast.error(`Voting Session with ID ${votingSessionId} not found.`);
+      return;
+    } else if (vsDetails === undefined) {
+      toast.dismiss(loadingToast);
+      toast.error(`Something went wrong in fetching voting session details`);
       return;
     }
     setErrorMessage("");
@@ -127,7 +132,7 @@ export default function CheckVotingSessionPage() {
                       Session ID
                     </th>
                     <td className="px-6 py-4">
-                      {votingSessionDetails.details[0] as number}
+                      {Number(votingSessionDetails.details[0])}
                     </td>
                   </tr>
                   <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
@@ -150,9 +155,9 @@ export default function CheckVotingSessionPage() {
                     </th>
                     <td className="px-6 py-4">
                       <span className="bg-blue-100 text-blue-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                        {votingSessionDetails.details[2] === 0
+                        {Number(votingSessionDetails.details[2]) === 0
                           ? "Registration"
-                          : votingSessionDetails.details[2] === 1
+                          : Number(votingSessionDetails.details[2]) === 1
                           ? "Voting"
                           : "Close"}
                       </span>
@@ -272,7 +277,7 @@ export default function CheckVotingSessionPage() {
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
                           <td className="px-6 py-4">
-                            {candidateData[0] as number}
+                            {Number(candidateData[0])}
                           </td>
                           <td className="px-4 py-4 flex items-center gap-4 capitalize font-bold text-gray-900">
                             <img
@@ -284,15 +289,15 @@ export default function CheckVotingSessionPage() {
                           </td>
                           <td className="px-6 py-4">{candidateData[2]}</td>
                           <td className="px-6 py-4">
-                            {candidateData[4] as number}
+                            {Number(candidateData[4])}
                           </td>
                           <td className="px-6 py-4">
                             {(() => {
                               if (votingSessionDetails.details[2] === 2) {
                                 for (const winnerId of votingSessionDetails.winnerCandidateIds) {
                                   if (
-                                    (candidateData[0] as number) ===
-                                    (winnerId as number)
+                                    Number(candidateData[0]) ===
+                                    Number(winnerId)
                                   ) {
                                     return (
                                       <span className="bg-green-100 text-green-800 text-sm font-medium mr-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
@@ -355,34 +360,38 @@ export default function CheckVotingSessionPage() {
                           key={`${index}-voter`}
                           className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                         >
-                          <td className="px-6 py-4">
-                            {voterData[0] as number}
-                          </td>
+                          <td className="px-6 py-4">{Number(voterData[0])}</td>
                           <td className="px-6 py-4">{voterData[1]}</td>
                           {
                             <>
                               <td className="px-6 py-4">
-                                {votingSessionDetails.voterVSDetails[index][0]}
+                                {Number(
+                                  votingSessionDetails.voterVSDetails[index][0]
+                                )}
                               </td>
                               <td className="px-6 py-4">
                                 <span
                                   className={`${
-                                    (votingSessionDetails.voterVSDetails[
-                                      index
-                                    ][1] as number) === 0
+                                    Number(
+                                      votingSessionDetails.voterVSDetails[
+                                        index
+                                      ][1]
+                                    ) === 0
                                       ? "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
                                       : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                                   } text-sm font-medium mr-2 px-2.5 py-0.5 rounded`}
                                 >
-                                  {(votingSessionDetails.voterVSDetails[
-                                    index
-                                  ][1] as number) === 0
+                                  {Number(
+                                    votingSessionDetails.voterVSDetails[
+                                      index
+                                    ][1]
+                                  ) === 0
                                     ? "No Vote"
-                                    : `Voted: ${
+                                    : `Voted: ${Number(
                                         votingSessionDetails.voterVSDetails[
                                           index
-                                        ][1] as number
-                                      }`}
+                                        ][1]
+                                      )}`}
                                 </span>
                               </td>
                             </>

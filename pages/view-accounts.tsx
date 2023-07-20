@@ -165,7 +165,7 @@ export default function ViewAccountsPage() {
                         key={`${index}-voter`}
                         className="bg-white border-b dark:bg-gray-800 dark:border-gray-700"
                       >
-                        <td className="px-6 py-4">{voterData[0].toNumber()}</td>
+                        <td className="px-6 py-4">{Number(voterData[0])}</td>
                         <td className="px-6 py-4">{voterData[1]}</td>
                         <td className="px-6 py-4">{voterData[2].length}</td>
                       </tr>

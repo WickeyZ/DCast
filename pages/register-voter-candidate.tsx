@@ -67,6 +67,7 @@ export default function RegisterVoterCandidatePage() {
   const [fileUrl, setFileUrl] = useState<string>();
   const [registerRoleType, setRegisterRoleType] =
     useState<RegisterRoles>("VOTER");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const handleRegisterRoleChange = (
     e: React.ChangeEvent<HTMLSelectElement>
@@ -99,10 +100,27 @@ export default function RegisterVoterCandidatePage() {
     e.preventDefault();
     const loadingToast = toast.loading("Loading...");
     const maxVotingSessionId = await getVotingSessionCount();
+
+    const currentPhase = Number(
+      (await getVotingSessionDetails(Number(votingSessionId))).details[2]
+    );
+    console.log(currentPhase);
+    if (currentPhase !== 0) {
+      setErrorMessage(
+        `Voting Session ${votingSessionId} phase is not Registration`
+      );
+      toast.dismiss(loadingToast);
+      toast.error(
+        `Voting Session ${votingSessionId} phase is not Registration`
+      );
+      return;
+    }
+
     if (
-      (votingSessionId as number) > maxVotingSessionId ||
-      (votingSessionId as number) < 1
+      Number(votingSessionId) > maxVotingSessionId ||
+      Number(votingSessionId) < 1
     ) {
+      setErrorMessage(`Voting Session ${votingSessionId} does not exist`);
       toast.dismiss(loadingToast);
       toast.error(`Voting Session ${votingSessionId} does not exist`);
       return;
@@ -110,12 +128,14 @@ export default function RegisterVoterCandidatePage() {
     if (registerRoleType === "VOTER") {
       try {
         const maxVoterId = await getVoterCount();
-        if ((voterId as number) > maxVoterId || (voterId as number) < 1) {
+        if (Number(voterId) > maxVoterId || Number(voterId) < 1) {
+          setErrorMessage(`Voter ${voterId} does not exist`);
           toast.dismiss(loadingToast);
           toast.error(`Voter ${voterId} does not exist`);
           return;
         }
-        if ((votingWeight as number) < 1) {
+        if (Number(votingWeight) < 1) {
+          setErrorMessage(`Voting weight must be more than 0`);
           toast.dismiss(loadingToast);
           toast.error("Voting weight must be more than 0");
           return;
@@ -125,7 +145,10 @@ export default function RegisterVoterCandidatePage() {
         ).voterDetails;
         if (votingSessionVoters != undefined) {
           for (let i = 0; i < votingSessionVoters.length; i++) {
-            if (votingSessionVoters[i][0].toNumber() === voterId) {
+            if (Number(votingSessionVoters[i][0]) === voterId) {
+              setErrorMessage(
+                `Voter ${voterId} registered in Voting Session ${votingSessionId}`
+              );
               toast.dismiss(loadingToast);
               toast.error(
                 `Voter ${voterId} registered in Voting Session ${votingSessionId}`
@@ -136,10 +159,11 @@ export default function RegisterVoterCandidatePage() {
         }
 
         await registerVoter(
-          votingSessionId as number,
-          voterId as number,
-          votingWeight as number
+          Number(votingSessionId),
+          Number(voterId),
+          Number(votingWeight)
         );
+        setErrorMessage("");
         toast.dismiss(loadingToast);
         toast.success("Voter registered successfully!");
       } catch (error) {
@@ -150,21 +174,23 @@ export default function RegisterVoterCandidatePage() {
     } else if (registerRoleType === "CANDIDATE") {
       try {
         if (!fileUrl) {
+          setErrorMessage("Please upload an image of the candidate");
           toast.dismiss(loadingToast);
           toast.error("Please upload an image of the candidate");
           return;
         }
         await registerCandidate(
-          votingSessionId as number,
+          Number(votingSessionId),
           candidateName as string,
           description as string,
           fileUrl
         );
         const newCandidateId = await getVotingSessionCandidateCount(
-          votingSessionId as number
+          Number(votingSessionId)
         );
         console.log(newCandidateId);
         setLatestCandidateId(newCandidateId);
+        setErrorMessage("");
         toast.dismiss(loadingToast);
         toast.success("Candidate registered successfully!");
       } catch (error) {

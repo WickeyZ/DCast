@@ -108,6 +108,7 @@ export default function AddAccountPage() {
 
           await addVoter(accountAddress);
           const newVoterId = await getVoterCount();
+          console.log(newVoterId);
           setLatestVoterId(newVoterId);
           toast.dismiss(loadingToast);
           toast.success("Voter added successfully!");
