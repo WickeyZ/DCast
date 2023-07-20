@@ -41,7 +41,8 @@ export default function ViewAccountsPage() {
         : undefined;
     //Restrict users from accessing unaccessible pages with their roles
     if (role !== undefined && currentRole != pages["/view-accounts"].access) {
-      toast.error("You have no access to that page.");
+      toast("Redirecting you to the home page.");
+      toast("Please use navigation bar to navigate.");
       router.push("/");
     }
   }, [role]);

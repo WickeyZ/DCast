@@ -45,7 +45,8 @@ export default function MyVotingSessionsPage() {
       role !== undefined &&
       currentRole != pages["/my-voting-sessions"].access
     ) {
-      toast.error("You have no access to that page.");
+      toast("Redirecting you to the home page.");
+      toast("Please use navigation bar to navigate.");
       router.push("/");
     }
   }, [role]);

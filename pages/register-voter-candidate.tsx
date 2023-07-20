@@ -50,7 +50,8 @@ export default function RegisterVoterCandidatePage() {
       role !== undefined &&
       currentRole != pages["/register-voter-candidate"].access
     ) {
-      toast.error("You have no access to that page.");
+      toast("Redirecting you to the home page.");
+      toast("Please use navigation bar to navigate.");
       router.push("/");
     }
   }, [role]);
