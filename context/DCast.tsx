@@ -1,6 +1,7 @@
 import React, { useState, createContext } from "react";
 import Web3Modal from "web3modal";
 import { BigNumberish, Signer, ethers } from "ethers";
+import MetamaskHover from "@/components/MetamaskHover";
 import { create as ipfsHttpClient } from "ipfs-http-client";
 import { VotingPhase } from "@/types";
 
@@ -8,6 +9,7 @@ import { VotingPhase } from "@/types";
 // //might move to constant.ts file
 // Smart Contract Address and ABI
 import dcast from "../artifacts/contracts/DCast.sol/DCast.json";
+import toast from "react-hot-toast";
 const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 const contractABI = dcast.abi;
 
@@ -231,8 +233,13 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
   // CONNECTING SMART CONTRACT
   const connectSmartContract = async () => {
+    console.log("trying to connect to smart contract");
     const web3Modal = new Web3Modal();
+    console.log("web3modal");
+    console.log(web3Modal);
     const connection = await web3Modal.connect();
+    console.log("connection");
+    console.log(connection);
     const provider = new ethers.BrowserProvider(connection);
     const signer = await provider.getSigner();
     console.log("SMART CONTRACT CONNECTED");
@@ -269,7 +276,10 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   const connectWallet = async () => {
     try {
       console.log("connectWallet");
-      if (!window.ethereum) return setError("Please install MetaMask first.");
+      if (!window.ethereum) {
+        setError("Please install MetaMask first.");
+        throw error;
+      }
 
       const account = await window.ethereum.request({
         method: "eth_requestAccounts",
@@ -277,8 +287,11 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
 
       setCurrentAccount(account[0]);
       setIsWalletConnected(true);
-    } catch {
+    } catch (error) {
       console.log(error);
+      toast((t) => <MetamaskHover />, {
+        icon: "🦊",
+      });
     }
   };
 

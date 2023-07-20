@@ -129,16 +129,20 @@ const Layout: React.FC<LayoutProps> = ({
   };
 
   useEffect(() => {
-    window.ethereum.on("accountsChanged", async () => {
-      console.log("Account changed");
+    try {
+      window.ethereum.on("accountsChanged", async () => {
+        console.log("Account changed");
 
-      checkIfWalletIsConnected();
-      toast("Redirecting you to the home page.");
-      toast("Account changed.", {
-        icon: "🙍‍♂️",
+        checkIfWalletIsConnected();
+        toast("Redirecting you to the home page.");
+        toast("Account changed.", {
+          icon: "🙍‍♂️",
+        });
+        router.push("/");
       });
-      router.push("/");
-    });
+    } catch (error) {
+      console.log(error);
+    }
   }, []);
 
   const [sidebarVisible, setSidebarVisible] = useState(false);

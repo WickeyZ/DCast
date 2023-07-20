@@ -1,5 +1,6 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "@/context/DCast";
+import MetamaskHover from "@/components/MetamaskHover";
 import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -36,6 +37,14 @@ export default function CheckVotingSessionPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!window.ethereum) {
+      toast((t) => <MetamaskHover />, {
+        icon: "🦊",
+      });
+      return;
+    }
+
     const loadingToast = toast.loading("Loading...");
 
     const vsDetails = await getVotingSessionDetails(Number(votingSessionId));
