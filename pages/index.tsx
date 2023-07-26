@@ -201,11 +201,11 @@ export default function CheckVotingSessionPage() {
                         })}`}
                       </td>
                     </tr>
-                    {(votingSessionDetails.details[2] === 1 ||
-                      votingSessionDetails.details[2] === 2) && (
+                    {(Number(votingSessionDetails.details[2]) === 1 ||
+                      Number(votingSessionDetails.details[2]) === 2) && (
                       <tr
                         className={`bg-white ${
-                          votingSessionDetails.details[2] === 2
+                          Number(votingSessionDetails.details[2]) === 2
                             ? "border-b"
                             : ""
                         } dark:bg-gray-800 dark:border-gray-700`}
@@ -229,7 +229,7 @@ export default function CheckVotingSessionPage() {
                         </td>
                       </tr>
                     )}
-                    {votingSessionDetails.details[2] === 2 && (
+                    {Number(votingSessionDetails.details[2]) === 2 && (
                       <tr className="bg-white dark:bg-gray-800 dark:border-gray-700">
                         <th
                           scope="row"
@@ -310,7 +310,9 @@ export default function CheckVotingSessionPage() {
                             </td>
                             <td className="px-6 py-4">
                               {(() => {
-                                if (votingSessionDetails.details[2] === 2) {
+                                if (
+                                  Number(votingSessionDetails.details[2]) === 2
+                                ) {
                                   for (const winnerId of votingSessionDetails.winnerCandidateIds) {
                                     if (
                                       Number(candidateData[0]) ===
