@@ -129,14 +129,15 @@ const Layout: React.FC<LayoutProps> = ({
   };
 
   useEffect(() => {
+    console.log("render");
     try {
       window.ethereum.on("accountsChanged", async () => {
         console.log("Account changed");
 
         await checkIfWalletIsConnected();
-        // toast("Account changed.", {
-        //   icon: "🙍‍♂️",
-        // });
+        toast("Account changed.", {
+          icon: "🙍‍♂️",
+        });
         router.push("/");
       });
     } catch (error) {

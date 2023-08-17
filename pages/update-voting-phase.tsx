@@ -1,7 +1,6 @@
 import Layout, { pages, roles } from "@/components/layout/Layout";
 import { DCastContext } from "../context/DCast";
 import { useContext, useEffect, useState } from "react";
-import { VotingPhase } from "@/types";
 import toast from "react-hot-toast";
 import router from "next/router";
 
@@ -53,7 +52,7 @@ export default function UpdateVotingPhasePage() {
 
   console.log("role", role);
   // ---------------------------------------------------------------------//
-
+  type VotingPhase = "Registration" | "Voting" | "Close";
   const [votingSessionId, setVotingSessionId] = useState<number>();
   const [latestPhase, setLatestPhase] = useState<VotingPhase>();
   const [currentPhaseString, setCurrentPhaseString] = useState<string>("");

@@ -146,15 +146,15 @@ contract DCast {
         _;
     }
 
-    modifier adminNotExists(address _adminAddress) {
-        require(!admins[_adminAddress], "Admin already exists");
+    modifier notAnExistingAdmin(address _address) {
+        require(!admins[_address], "Admin already exists");
         _;
     }
 
-    modifier voterNotExists(address _voterAddress) {
+    modifier notAnExistingVoter(address _address) {
         require(
-            voters[_voterAddress].voterAddress != _voterAddress,
-            "Voter already exists"
+            voters[_address].voterAddress != _address,
+            "This account is already a voter."
         );
         _;
     }
@@ -282,7 +282,12 @@ contract DCast {
 
     function addAdmin(
         address _adminAddress
-    ) public onlyAdmin adminNotExists(_adminAddress) {
+    )
+        public
+        onlyAdmin
+        notAnExistingAdmin(_adminAddress)
+        notAnExistingVoter(_adminAddress)
+    {
         adminAddresses.push(_adminAddress);
         admins[_adminAddress] = true;
         emit AdminAdded(_adminAddress);
@@ -294,7 +299,12 @@ contract DCast {
 
     function addVoter(
         address _voterAddress
-    ) public onlyAdmin voterNotExists(_voterAddress) {
+    )
+        public
+        onlyAdmin
+        notAnExistingAdmin(_voterAddress)
+        notAnExistingVoter(_voterAddress)
+    {
         voterAddresses.push(_voterAddress);
 
         voters[_voterAddress].voterID = voterAddresses.length;
