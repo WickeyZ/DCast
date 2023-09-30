@@ -130,19 +130,26 @@ const Layout: React.FC<LayoutProps> = ({
 
   useEffect(() => {
     console.log("render");
-    try {
-      window.ethereum.on("accountsChanged", async () => {
-        console.log("Account changed");
+    const handleAccountChange = async () => {
+      console.log("Account changed");
 
-        await checkIfWalletIsConnected();
-        toast("Account changed.", {
-          icon: "🙍‍♂️",
-        });
-        router.push("/");
+      await checkIfWalletIsConnected();
+      toast("Account changed.", {
+        icon: "🙍‍♂️",
       });
+      router.push("/");
+    };
+
+    try {
+      window.ethereum.on("accountsChanged", handleAccountChange);
     } catch (error) {
       console.log(error);
     }
+
+    // Clean up the event listener when the component unmounts
+    return () => {
+      window.ethereum.removeListener("accountsChanged", handleAccountChange);
+    };
   }, []);
 
   const [sidebarVisible, setSidebarVisible] = useState(false);
