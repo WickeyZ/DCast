@@ -460,6 +460,7 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
     }
   };
 
+  // register candidate in a voting session
   const registerCandidate = async (
     votingSessionID: number,
     candidateName: String,
