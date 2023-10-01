@@ -2,7 +2,6 @@ import React, { useState, createContext } from "react";
 import Web3Modal from "web3modal";
 import { BigNumberish, Signer, ethers } from "ethers";
 import MetamaskHover from "@/components/MetamaskHover";
-import { create as ipfsHttpClient } from "ipfs-http-client";
 
 // Smart Contract Address and ABI
 import dcast from "../artifacts/contracts/DCast.sol/DCast.json";
@@ -11,6 +10,7 @@ const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as string;
 const contractABI = dcast.abi;
 
 //IPFS
+import { create as ipfsHttpClient } from "ipfs-http-client";
 const ipfsProjectId = process.env.NEXT_PUBLIC_IPFS_PROJECT_ID as string;
 const ipfsProjectSecretKey = process.env
   .NEXT_PUBLIC_IPFS_PROJECT_SECRET_KEY as string;
@@ -208,7 +208,6 @@ export const DCastProvider = ({ children }: DCastContextProviderProps) => {
   };
 
   //UPLOAD TO IPFS VOTER IMAGE
-  //TODO: restrict to IMAGE file type
   const uploadToIPFS = async (file: any) => {
     try {
       const added = await client.add({ content: file });
